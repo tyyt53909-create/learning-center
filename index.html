@@ -13,17 +13,18 @@
       --fg: #0d0d0d;
       --fg-2: #3a3a40;
       --muted: #6e6e77;
-      --border: rgba(13, 13, 13, 0.1);
+      --border: rgba(13, 13, 13, 0.09);
       --border-strong: rgba(13, 13, 13, 0.18);
-      --ink-bg: #0d0d0f;
-      --ink-surface: #16161a;
+      --ink-bg: #0b0b0e;
+      --ink-surface: #141419;
       --ink-border: rgba(255, 255, 255, 0.11);
       --ink-fg: #f5f5f7;
-      --ink-muted: #9898a3;
+      --ink-muted: #9898a6;
       --accent: #0d0d0d;
       --accent-fg: #ffffff;
       --signal: #10a37f;
-      --blue: #0071e3;
+      --signal-soft: rgba(16, 163, 127, 0.14);
+      --signal-glow: rgba(16, 163, 127, 0.35);
       --radius-sm: 10px;
       --radius-md: 16px;
       --radius-lg: 24px;
@@ -32,25 +33,26 @@
       --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       --max-w: 1120px;
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     html[data-theme="dark"] {
-      --bg: #0a0a0c;
-      --bg-subtle: #121216;
+      --bg: #08080a;
+      --bg-subtle: #111115;
       --bg-elev: #15151a;
       --fg: #f5f5f7;
       --fg-2: #c9c9d1;
-      --muted: #8e8e98;
-      --border: rgba(255, 255, 255, 0.1);
+      --muted: #8e8e9a;
+      --border: rgba(255, 255, 255, 0.09);
       --border-strong: rgba(255, 255, 255, 0.18);
-      --ink-bg: #111115;
-      --ink-surface: #18181d;
+      --ink-bg: #0f0f13;
+      --ink-surface: #17171d;
       --accent: #ffffff;
-      --accent-fg: #0a0a0c;
+      --accent-fg: #08080a;
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
     body {
       margin: 0;
       background: var(--bg);
@@ -58,6 +60,7 @@
       font: 16px/1.6 var(--font-sans);
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      overflow-x: clip;
     }
     a { color: inherit; text-decoration: none; }
     button {
@@ -77,15 +80,155 @@
       padding-inline: 24px;
     }
 
+    /* Top Scroll Progress Hairline */
+    .scroll-rail {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      z-index: 90;
+      pointer-events: none;
+      background: transparent;
+    }
+    .scroll-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--fg), var(--signal));
+      position: relative;
+      will-change: width;
+    }
+    .scroll-bar::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 12px var(--signal), 0 0 4px var(--signal);
+      opacity: 0.9;
+    }
+
+    /* Floating System Loop Telemetry HUD */
+    .loop-hud {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 60;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px 8px 10px;
+      border-radius: var(--radius-pill);
+      background: color-mix(in srgb, var(--ink-bg), transparent 8%);
+      color: var(--ink-fg);
+      border: 1px solid var(--ink-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(16px) scale(0.95);
+      pointer-events: none;
+      transition: opacity 320ms var(--ease), transform 320ms var(--ease-spring), border-color 200ms var(--ease);
+    }
+    .loop-hud.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .loop-hud:hover { border-color: rgba(16, 163, 127, 0.5); }
+    .hud-orbit {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+    .hud-orbit::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 8px var(--signal);
+    }
+    .hud-orbit-dot {
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      border-top-color: var(--signal);
+      animation: spinSlow 3.6s linear infinite;
+    }
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+    .hud-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+      text-align: left;
+    }
+    .hud-meta span {
+      font: 500 10px var(--font-mono);
+      color: var(--ink-muted);
+      letter-spacing: 0.06em;
+    }
+    .hud-meta strong {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Global Toast */
+    .copy-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 80;
+      transform: translate(-50%, 16px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 10px 18px;
+      border-radius: var(--radius-pill);
+      background: var(--ink-bg);
+      color: #fff;
+      border: 1px solid rgba(16, 163, 127, 0.45);
+      font-size: 13px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 220ms var(--ease), transform 260ms var(--ease-spring);
+    }
+    .copy-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    .copy-toast i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 8px var(--signal);
+    }
+
     /* Header */
     .nav {
       position: sticky;
       top: 0;
-      z-index: 40;
-      background: color-mix(in srgb, var(--bg), transparent 16%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg), transparent 18%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--border);
+      transition: background 240ms var(--ease), box-shadow 240ms var(--ease);
+    }
+    .nav.scrolled {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
     }
     .nav-inner {
       height: 64px;
@@ -112,15 +255,38 @@
       color: var(--bg);
       display: grid;
       place-items: center;
+      transition: transform 300ms var(--ease-spring);
     }
+    .brand:hover .brand-mark { transform: rotate(-6deg) scale(1.06); }
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 28px;
+      gap: 26px;
       font-size: 14px;
       color: var(--muted);
     }
-    .nav-links a:hover { color: var(--fg); }
+    .nav-links a {
+      position: relative;
+      padding: 4px 0;
+      transition: color 180ms var(--ease);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -2px;
+      height: 1.5px;
+      background: var(--fg);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 240ms var(--ease-spring);
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--fg); }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { transform: scaleX(1); }
+
     .nav-right {
       display: flex;
       align-items: center;
@@ -134,52 +300,86 @@
       display: grid;
       place-items: center;
       color: var(--muted);
-      transition: border-color 160ms var(--ease), color 160ms var(--ease);
+      transition: border-color 180ms var(--ease), color 180ms var(--ease), transform 280ms var(--ease-spring);
     }
-    .theme-btn:hover { color: var(--fg); border-color: var(--border-strong); }
+    .theme-btn:hover { color: var(--fg); border-color: var(--border-strong); transform: rotate(18deg); }
+
+    /* Magnetic Buttons */
     .pill {
+      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
-      height: 40px;
-      padding: 0 18px;
+      height: 42px;
+      padding: 0 20px;
       border-radius: var(--radius-pill);
       font-size: 14px;
       font-weight: 500;
       white-space: nowrap;
-      transition: transform 160ms var(--ease), background 160ms var(--ease), border-color 160ms var(--ease), opacity 160ms var(--ease);
+      overflow: hidden;
+      transition: transform 240ms var(--ease-spring), background 180ms var(--ease), border-color 180ms var(--ease), box-shadow 220ms var(--ease);
+      will-change: transform;
     }
     .pill.sm { height: 34px; padding: 0 14px; font-size: 13px; }
     .pill.primary {
       background: var(--accent);
       color: var(--accent-fg);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
-    .pill.primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .pill.primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.22) 50%, transparent 75%);
+      transform: translateX(-130%);
+      transition: transform 620ms var(--ease);
+    }
+    .pill.primary:hover::before { transform: translateX(130%); }
+    .pill.primary:hover { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16); }
     .pill.ghost {
       border: 1px solid var(--border-strong);
-      background: var(--bg);
+      background: color-mix(in srgb, var(--bg), transparent 10%);
       color: var(--fg);
     }
-    .pill.ghost:hover { background: var(--bg-subtle); }
+    .pill.ghost:hover { background: var(--bg-subtle); border-color: var(--fg); }
 
-    /* Hero */
+    /* Hero + Interactive Neural Field Canvas */
     .hero {
-      padding: 84px 0 64px;
+      position: relative;
+      padding: 88px 0 84px;
       text-align: center;
+      overflow: clip;
     }
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 760px;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.75) 65%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.75) 65%, transparent 100%);
+    }
+    .hero > .container { position: relative; z-index: 2; }
+
+    /* Kinetic Masked Entrance */
     .eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 5px 12px;
+      gap: 9px;
+      padding: 6px 14px;
       border-radius: var(--radius-pill);
       border: 1px solid var(--border);
-      background: var(--bg-subtle);
+      background: color-mix(in srgb, var(--bg-subtle), transparent 15%);
+      backdrop-filter: blur(8px);
       font: 500 12px/1 var(--font-mono);
       color: var(--muted);
-      letter-spacing: 0.04em;
-      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      margin-bottom: 26px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: heroFadeUp 700ms var(--ease-spring) 60ms forwards;
     }
     .eyebrow i {
       width: 7px;
@@ -187,22 +387,56 @@
       border-radius: 50%;
       background: var(--signal);
       display: block;
+      position: relative;
     }
+    .eyebrow i::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid var(--signal);
+      animation: pulseRing 2.2s var(--ease) infinite;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(2.1); opacity: 0; }
+    }
+
     .hero h1 {
-      font-size: clamp(38px, 6vw, 66px);
+      font-size: clamp(40px, 6.2vw, 70px);
       font-weight: 600;
       line-height: 1.08;
-      letter-spacing: -0.04em;
-      max-width: 820px;
-      margin: 0 auto 20px;
+      letter-spacing: -0.042em;
+      max-width: 860px;
+      margin: 0 auto 22px;
     }
+    .line-mask {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.06em;
+    }
+    .line-inner {
+      display: block;
+      transform: translateY(112%);
+      opacity: 0;
+      filter: blur(6px);
+      animation: lineReveal 880ms var(--ease-spring) forwards;
+    }
+    .line-mask:nth-child(1) .line-inner { animation-delay: 120ms; }
+    .line-mask:nth-child(2) .line-inner { animation-delay: 240ms; }
+    @keyframes lineReveal {
+      to { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
+
     .hero-sub {
       font-size: clamp(16px, 2vw, 19px);
-      line-height: 1.65;
+      line-height: 1.68;
       color: var(--muted);
-      max-width: 650px;
-      margin: 0 auto 32px;
-      font-weight: 400;
+      max-width: 660px;
+      margin: 0 auto 34px;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: heroFadeUp 820ms var(--ease-spring) 360ms forwards;
     }
     .hero-actions {
       display: flex;
@@ -210,31 +444,46 @@
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: heroFadeUp 820ms var(--ease-spring) 440ms forwards;
+    }
+    @keyframes heroFadeUp {
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Hero Quick Install Bar */
     .quick-cmd {
       max-width: 860px;
-      margin: 0 auto 56px;
+      margin: 0 auto 62px;
       border-radius: var(--radius-md);
       background: var(--ink-bg);
       border: 1px solid var(--ink-border);
       color: var(--ink-fg);
       text-align: left;
       overflow: hidden;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.14);
+      opacity: 0;
+      transform: translateY(18px);
+      animation: heroFadeUp 860ms var(--ease-spring) 520ms forwards;
+      transition: border-color 240ms var(--ease), box-shadow 240ms var(--ease);
+    }
+    .quick-cmd:hover {
+      border-color: rgba(16, 163, 127, 0.35);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(16, 163, 127, 0.16);
     }
     .quick-cmd-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 9px 14px;
+      padding: 10px 14px;
       border-bottom: 1px solid var(--ink-border);
       background: rgba(255, 255, 255, 0.02);
     }
     .cmd-tabs {
+      position: relative;
       display: inline-flex;
       gap: 4px;
       flex-wrap: nowrap;
@@ -242,33 +491,35 @@
     .cmd-tab {
       font-size: 12px;
       color: var(--ink-muted);
-      padding: 4px 10px;
+      padding: 5px 11px;
       border-radius: 7px;
       white-space: nowrap;
-      transition: background 140ms var(--ease), color 140ms var(--ease);
+      transition: background 180ms var(--ease), color 180ms var(--ease);
     }
+    .cmd-tab:hover { color: #e2e2ea; }
     .cmd-tab.active {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.11);
       color: #fff;
       font-weight: 500;
     }
     .copy-btn {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       font-size: 12px;
       color: var(--ink-muted);
-      padding: 4px 10px;
+      padding: 5px 11px;
       border-radius: 7px;
       white-space: nowrap;
       flex: none;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      transition: color 140ms var(--ease), border-color 140ms var(--ease), background 140ms var(--ease);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      transition: color 160ms var(--ease), border-color 160ms var(--ease), background 160ms var(--ease), transform 160ms var(--ease);
     }
-    .copy-btn:hover { color: #fff; border-color: rgba(255, 255, 255, 0.28); }
-    .copy-btn.copied { color: #34d399; border-color: rgba(52, 211, 153, 0.4); }
+    .copy-btn:hover { color: #fff; border-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+    .copy-btn:active { transform: scale(0.96); }
+    .copy-btn.copied { color: #34d399; border-color: rgba(52, 211, 153, 0.45); background: rgba(16, 163, 127, 0.12); }
     .quick-cmd-body {
-      padding: 15px 18px;
+      padding: 16px 18px;
       font-size: 12.5px;
       line-height: 1.6;
       overflow-x: auto;
@@ -277,15 +528,38 @@
       align-items: center;
       gap: 10px;
     }
-    .prompt-sign { color: #34d399; user-select: none; }
+    .prompt-sign { color: #34d399; user-select: none; font-weight: 600; }
+    .cmd-cursor {
+      display: inline-block;
+      width: 7px;
+      height: 15px;
+      background: #34d399;
+      margin-left: 2px;
+      vertical-align: -2px;
+      animation: blinkCursor 1.1s steps(1) infinite;
+    }
+    @keyframes blinkCursor {
+      0%, 50% { opacity: 1; }
+      50.1%, 100% { opacity: 0; }
+    }
 
-    /* Interactive Hero Stage — Wide Real Product Showcase */
+    /* 3D Perspective Scroll-Driven Product Showcase Stage */
     .stage-wrap {
       width: min(1240px, calc(100vw - 32px));
       margin: 0 auto;
       position: relative;
       left: 50%;
       transform: translateX(-50%);
+      opacity: 0;
+      animation: heroFadeUp 960ms var(--ease-spring) 620ms forwards;
+    }
+    .stage-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
     .stage-switcher {
       display: inline-flex;
@@ -294,34 +568,92 @@
       border-radius: var(--radius-pill);
       background: var(--bg-subtle);
       border: 1px solid var(--border);
-      margin-bottom: 20px;
       flex-wrap: wrap;
       justify-content: center;
     }
     .stage-tab {
-      padding: 8px 18px;
+      position: relative;
+      padding: 8px 18px 10px;
       border-radius: var(--radius-pill);
       font-size: 13.5px;
       font-weight: 500;
       color: var(--muted);
-      transition: background 160ms var(--ease), color 160ms var(--ease), box-shadow 160ms var(--ease);
+      overflow: hidden;
+      transition: background 180ms var(--ease), color 180ms var(--ease), box-shadow 180ms var(--ease);
     }
     .stage-tab:hover { color: var(--fg); }
     .stage-tab.active {
       background: var(--bg);
       color: var(--fg);
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .tab-progress {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 3px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--signal);
+      transform-origin: left;
+      transform: scaleX(0);
+      opacity: 0;
+    }
+    .stage-tab.active .tab-progress {
+      opacity: 0.9;
+      animation: tabSweep 5.6s linear forwards;
+    }
+    .stage-wrap.paused .stage-tab.active .tab-progress {
+      animation-play-state: paused;
+    }
+    @keyframes tabSweep {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+    .autoplay-btn {
+      height: 36px;
+      padding: 0 12px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font: 500 12px var(--font-mono);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 180ms var(--ease), color 180ms var(--ease);
+    }
+    .autoplay-btn:hover { color: var(--fg); border-color: var(--border-strong); }
+
+    .stage-3d-shell {
+      perspective: 2000px;
     }
     .window-frame {
+      position: relative;
       border-radius: 22px;
       background: var(--ink-bg);
       border: 1px solid var(--border-strong);
       overflow: hidden;
       text-align: left;
-      box-shadow: 0 32px 96px rgba(0, 0, 0, 0.16), 0 6px 24px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 36px 100px rgba(0, 0, 0, 0.17), 0 8px 28px rgba(0, 0, 0, 0.06);
       color: var(--ink-fg);
+      transform-style: preserve-3d;
+      transform: rotateX(var(--tilt-x, 4deg)) rotateY(var(--tilt-y, 0deg)) scale(var(--stage-scale, 0.985));
+      transition: transform 280ms var(--ease-spring), box-shadow 300ms var(--ease);
+      will-change: transform;
     }
+    .window-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(640px circle at var(--gx, 50%) var(--gy, 20%), rgba(255, 255, 255, 0.09), transparent 55%);
+      opacity: 0;
+      transition: opacity 280ms var(--ease);
+    }
+    .window-frame:hover::after { opacity: 1; }
+
     .window-bar {
       height: 44px;
       padding: 0 18px;
@@ -331,16 +663,17 @@
       border-bottom: 1px solid var(--ink-border);
       background: #141418;
     }
-    .traffic {
-      display: flex;
-      gap: 7px;
-    }
+    .traffic { display: flex; gap: 7px; }
     .traffic span {
       width: 11px;
       height: 11px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.16);
+      transition: background 200ms var(--ease);
     }
+    .window-frame:hover .traffic span:nth-child(1) { background: #ff5f56; }
+    .window-frame:hover .traffic span:nth-child(2) { background: #ffbd2e; }
+    .window-frame:hover .traffic span:nth-child(3) { background: #27c93f; }
     .window-url {
       font: 12px/1 var(--font-mono);
       color: var(--ink-muted);
@@ -352,17 +685,31 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .window-live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font: 500 11px var(--font-mono);
+      color: #6ee7b7;
+    }
+    .window-live-dot i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 8px var(--signal);
+    }
     .window-pane {
       display: none;
       background: #f5f5f7;
     }
     .window-pane.active {
       display: block;
-      animation: paneFade 220ms var(--ease);
+      animation: shotCrossfade 420ms var(--ease-spring);
     }
-    @keyframes paneFade {
-      from { opacity: 0.4; }
-      to { opacity: 1; }
+    @keyframes shotCrossfade {
+      from { opacity: 0.25; transform: scale(1.012); filter: blur(3px); }
+      to { opacity: 1; transform: scale(1); filter: blur(0); }
     }
     .stage-shot {
       display: block;
@@ -402,6 +749,701 @@
       color: #b7b7c2;
     }
 
+    /* Infinite Dual-Track Ecosystem Marquee */
+    .marquee-band {
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      background: var(--bg-subtle);
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 12px;
+      width: max-content;
+      animation: marqueeScroll 34s linear infinite;
+    }
+    .marquee-band:hover .marquee-track { animation-play-state: paused; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--fg-2);
+      white-space: nowrap;
+    }
+    .marquee-pill b {
+      font: 600 11px var(--font-mono);
+      color: var(--signal);
+    }
+
+    /* Reveal Choreography */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 720ms var(--ease-spring), transform 760ms var(--ease-spring);
+      transition-delay: var(--delay, 0ms);
+    }
+    [data-reveal].in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Sections */
+    .section {
+      padding: 108px 0;
+      border-top: 1px solid var(--border);
+      position: relative;
+    }
+    .section-head {
+      max-width: 680px;
+      margin-bottom: 54px;
+    }
+    .section-kicker {
+      font: 500 12px/1 var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--signal);
+      margin-bottom: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-kicker::before {
+      content: '';
+      width: 16px;
+      height: 1.5px;
+      background: var(--signal);
+    }
+    .section-head h2 {
+      font-size: clamp(28px, 4.1vw, 46px);
+      font-weight: 600;
+      line-height: 1.13;
+      letter-spacing: -0.034em;
+      margin-bottom: 14px;
+    }
+    .section-head p {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.66;
+    }
+
+    /* Bento Grid with Radial Cursor Spotlight & Live Animated Micro-Visuals */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .bento-card {
+      position: relative;
+      grid-column: span 6;
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      transition: border-color 220ms var(--ease), transform 260ms var(--ease-spring), box-shadow 260ms var(--ease);
+    }
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(16, 163, 127, 0.11), transparent 60%);
+      opacity: 0;
+      transition: opacity 280ms var(--ease);
+    }
+    .bento-card:hover::before { opacity: 1; }
+    .bento-card:hover {
+      border-color: color-mix(in srgb, var(--signal), var(--border-strong) 62%);
+      transform: translateY(-3px);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.06);
+    }
+    .bento-card > * { position: relative; z-index: 1; }
+    .bento-card.wide { grid-column: span 7; }
+    .bento-card.narrow { grid-column: span 5; }
+    .bento-tag {
+      font: 500 11.5px/1 var(--font-mono);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bento-card h3 {
+      font-size: 21px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+    .bento-card p {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* Live Bento Micro-Visuals */
+    .bento-viz {
+      margin-top: 4px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      min-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .viz-split {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.15fr 28px 0.95fr;
+      align-items: center;
+      gap: 8px;
+    }
+    .viz-doc {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+    .viz-line {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border-strong);
+    }
+    .viz-line.hl {
+      background: rgba(16, 163, 127, 0.25);
+      border: 1px solid rgba(16, 163, 127, 0.55);
+      height: 10px;
+      animation: citePulse 3.2s ease-in-out infinite;
+    }
+    @keyframes citePulse {
+      0%, 100% { background: rgba(16, 163, 127, 0.14); box-shadow: none; }
+      50% { background: rgba(16, 163, 127, 0.34); box-shadow: 0 0 14px rgba(16, 163, 127, 0.25); }
+    }
+    .viz-beam {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--signal), transparent);
+      position: relative;
+      overflow: hidden;
+    }
+    .viz-beam::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: 0;
+      width: 8px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--signal);
+      animation: beamTravel 2.2s var(--ease) infinite;
+    }
+    @keyframes beamTravel {
+      0% { left: 100%; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { left: -8px; opacity: 0; }
+    }
+    .viz-ai-box {
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: var(--ink-bg);
+      color: #fff;
+      font: 500 11px/1.5 var(--font-mono);
+      display: grid;
+      gap: 4px;
+    }
+    .viz-ai-box span { color: #34d399; font-size: 10px; }
+
+    /* Viz 2: Extension Pipeline */
+    .viz-pipe {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .viz-node {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font: 500 11.5px var(--font-mono);
+      white-space: nowrap;
+    }
+    .viz-node.em {
+      background: var(--ink-bg);
+      color: #fff;
+      border-color: rgba(16, 163, 127, 0.4);
+    }
+    .viz-wire {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .viz-wire::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      width: 22px;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--signal);
+      animation: wireFlow 2s linear infinite;
+    }
+    @keyframes wireFlow {
+      from { left: -24px; }
+      to { left: 100%; }
+    }
+
+    /* Viz 3: Live Loss Curve SVG */
+    .viz-curve { width: 100%; height: 68px; overflow: visible; }
+    .curve-dot {
+      animation: slideParabola 3.6s ease-in-out infinite alternate;
+      offset-path: path("M 18 14 Q 140 82 262 14");
+    }
+    @keyframes slideParabola {
+      0% { offset-distance: 8%; }
+      45% { offset-distance: 54%; }
+      75% { offset-distance: 48%; }
+      100% { offset-distance: 50%; }
+    }
+
+    /* Viz 4: Dual RAG + Web Merge */
+    .viz-rag {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      font: 500 11.5px var(--font-mono);
+    }
+    .viz-lane {
+      display: grid;
+      gap: 5px;
+    }
+    .viz-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .viz-bar-track {
+      flex: 1;
+      height: 6px;
+      border-radius: 4px;
+      background: var(--bg-subtle);
+      overflow: hidden;
+    }
+    .viz-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--signal);
+      transform-origin: left;
+      animation: barBreathe 3s ease-in-out infinite;
+    }
+    @keyframes barBreathe {
+      0%, 100% { transform: scaleX(0.74); opacity: 0.7; }
+      50% { transform: scaleX(1); opacity: 1; }
+    }
+    .viz-shield {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--signal-soft);
+      border: 1px solid rgba(16, 163, 127, 0.35);
+      color: var(--signal);
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .bento-meta-row {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      font: 500 12px/1 var(--font-mono);
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--fg-2);
+    }
+
+    /* Workflow Section with Scroll-Linked Vertical Energy Conduit */
+    .workflow-wrap {
+      position: relative;
+      padding-left: 38px;
+    }
+    .workflow-spine {
+      position: absolute;
+      left: 11px;
+      top: 28px;
+      bottom: 28px;
+      width: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .workflow-spine-fill {
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(180deg, var(--signal), #34d399);
+      box-shadow: 0 0 12px var(--signal-glow);
+      transition: height 120ms linear;
+    }
+    .workflow-list {
+      display: grid;
+      gap: 22px;
+    }
+    .workflow-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 28px;
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      align-items: start;
+      transition: border-color 280ms var(--ease), box-shadow 280ms var(--ease), transform 320ms var(--ease-spring);
+    }
+    .workflow-row::before {
+      content: '';
+      position: absolute;
+      left: -33px;
+      top: 38px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--border-strong);
+      transition: border-color 260ms var(--ease), background 260ms var(--ease), box-shadow 260ms var(--ease);
+    }
+    .workflow-row.active-step {
+      border-color: color-mix(in srgb, var(--signal), var(--border) 55%);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.05);
+    }
+    .workflow-row.active-step::before {
+      background: var(--signal);
+      border-color: var(--signal);
+      box-shadow: 0 0 0 5px var(--signal-soft);
+    }
+    .wf-num {
+      font: 600 12.5px/1 var(--font-mono);
+      color: var(--signal);
+      padding-top: 6px;
+      letter-spacing: 0.04em;
+    }
+    .wf-copy h3 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .wf-copy p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.72;
+    }
+    .wf-card {
+      padding: 18px 20px;
+      border-radius: var(--radius-md);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      font-size: 13.5px;
+      color: var(--fg-2);
+      display: grid;
+      gap: 10px;
+    }
+    .wf-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wf-line:last-child { border-bottom: 0; padding-bottom: 0; }
+    .wf-line code { font-size: 12px; color: var(--muted); }
+
+    /* =====================================================================
+       GRAND CENTERPIECE: CLOSED-LOOP KNOWLEDGE METABOLISM SYSTEM
+       ===================================================================== */
+    .loop-section {
+      padding: 112px 0;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-subtle) 100%);
+    }
+    .loop-board {
+      border-radius: 28px;
+      background: var(--ink-bg);
+      border: 1px solid var(--ink-border);
+      color: var(--ink-fg);
+      overflow: hidden;
+      box-shadow: 0 32px 90px rgba(0, 0, 0, 0.2);
+    }
+    .loop-board-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 18px 26px;
+      border-bottom: 1px solid var(--ink-border);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .loop-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font: 500 12px var(--font-mono);
+      color: #6ee7b7;
+      letter-spacing: 0.04em;
+    }
+    .loop-status i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 10px var(--signal);
+    }
+    .loop-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pulse-trigger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      background: rgba(16, 163, 127, 0.16);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #6ee7b7;
+      font: 500 12.5px var(--font-sans);
+      transition: background 180ms var(--ease), transform 180ms var(--ease-spring), box-shadow 200ms var(--ease);
+    }
+    .pulse-trigger-btn:hover {
+      background: rgba(16, 163, 127, 0.28);
+      box-shadow: 0 0 22px rgba(16, 163, 127, 0.28);
+      transform: translateY(-1px);
+    }
+    .pulse-trigger-btn:active { transform: scale(0.96); }
+
+    .loop-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      min-height: 520px;
+    }
+    .loop-canvas-area {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      border-right: 1px solid var(--ink-border);
+      background: radial-gradient(circle at 50% 50%, rgba(16, 163, 127, 0.08), transparent 62%);
+    }
+    .loop-svg {
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      overflow: visible;
+    }
+    .orbit-ring-dash {
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-dasharray: 4 6;
+      fill: none;
+      animation: dashRotate 42s linear infinite;
+      transform-origin: 280px 250px;
+    }
+    @keyframes dashRotate { to { transform: rotate(360deg); } }
+    .loop-path-base {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.12);
+      stroke-width: 1.75;
+    }
+    .loop-path-active {
+      fill: none;
+      stroke: #34d399;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.7));
+      opacity: 0.2;
+      transition: opacity 320ms var(--ease);
+    }
+    .loop-path-active.lit { opacity: 1; }
+    .spoke-line {
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 1;
+      stroke-dasharray: 3 4;
+      transition: stroke 280ms var(--ease), stroke-width 280ms var(--ease);
+    }
+    .spoke-line.lit {
+      stroke: rgba(52, 211, 153, 0.65);
+      stroke-width: 1.5;
+    }
+    .loop-node-g {
+      cursor: pointer;
+      transition: transform 280ms var(--ease-spring);
+    }
+    .loop-node-circle {
+      fill: #15151b;
+      stroke: rgba(255, 255, 255, 0.18);
+      stroke-width: 1.5;
+      transition: fill 260ms var(--ease), stroke 260ms var(--ease), filter 260ms var(--ease);
+    }
+    .loop-node-g:hover .loop-node-circle,
+    .loop-node-g.active .loop-node-circle {
+      fill: #10261f;
+      stroke: #34d399;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 14px rgba(16, 163, 127, 0.45));
+    }
+    .loop-node-ring {
+      fill: none;
+      stroke: #34d399;
+      stroke-width: 1.2;
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .loop-node-g.active .loop-node-ring {
+      animation: nodePing 2.2s var(--ease) infinite;
+    }
+    @keyframes nodePing {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.42); opacity: 0; }
+    }
+    .loop-node-idx {
+      fill: #34d399;
+      font: 600 10px var(--font-mono);
+      text-anchor: middle;
+    }
+    .loop-node-lbl {
+      fill: #f5f5f7;
+      font: 600 12.5px var(--font-sans);
+      text-anchor: middle;
+    }
+    .core-halo {
+      fill: rgba(16, 163, 127, 0.08);
+      stroke: rgba(52, 211, 153, 0.3);
+      stroke-width: 1.2;
+      transform-origin: 280px 250px;
+      animation: coreBreathe 3.6s ease-in-out infinite;
+    }
+    @keyframes coreBreathe {
+      0%, 100% { transform: scale(0.96); opacity: 0.75; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+
+    /* Loop Telemetry Inspector Panel */
+    .loop-inspector {
+      padding: 28px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      background: #111116;
+    }
+    .loop-step-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .loop-step-pill {
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--ink-border);
+      font: 500 11.5px var(--font-mono);
+      color: var(--ink-muted);
+      transition: all 180ms var(--ease);
+    }
+    .loop-step-pill:hover { color: #fff; border-color: rgba(255, 255, 255, 0.28); }
+    .loop-step-pill.active {
+      background: rgba(16, 163, 127, 0.18);
+      border-color: rgba(52, 211, 153, 0.55);
+      color: #6ee7b7;
+    }
+    .loop-detail {
+      display: grid;
+      gap: 12px;
+      animation: detailSwap 280ms var(--ease-spring);
+    }
+    @keyframes detailSwap {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .loop-detail-kicker {
+      font: 500 11.5px var(--font-mono);
+      color: #34d399;
+      letter-spacing: 0.06em;
+    }
+    .loop-detail h3 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      color: #fff;
+    }
+    .loop-detail p {
+      font-size: 14px;
+      line-height: 1.72;
+      color: #b7b7c4;
+    }
+    .loop-packet {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #09090c;
+      border: 1px solid var(--ink-border);
+      font: 12px/1.7 var(--font-mono);
+      color: #cfd6e6;
+      display: grid;
+      gap: 4px;
+    }
+    .loop-packet-head {
+      font-size: 10.5px;
+      color: var(--ink-muted);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .loop-packet .k { color: #34d399; }
+    .loop-next-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--ink-border);
+      font-size: 12.5px;
+      color: var(--ink-muted);
+    }
+    .loop-next-bar strong { color: #fff; font-weight: 500; }
+
     /* Use Cases Grid */
     .usecase-grid {
       display: grid;
@@ -409,6 +1451,7 @@
       gap: 18px;
     }
     .usecase-card {
+      position: relative;
       padding: 28px;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border);
@@ -416,6 +1459,13 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      overflow: hidden;
+      transition: transform 260ms var(--ease-spring), border-color 220ms var(--ease), box-shadow 260ms var(--ease);
+    }
+    .usecase-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-strong);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.06);
     }
     .usecase-role {
       font: 500 11.5px/1 var(--font-mono);
@@ -442,185 +1492,6 @@
       color: var(--fg-2);
     }
 
-    /* FAQ Accordion */
-    .faq-list {
-      display: grid;
-      gap: 10px;
-      max-width: 820px;
-    }
-    .faq-item {
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      background: var(--bg);
-      padding: 18px 22px;
-    }
-    .faq-item[open] {
-      background: var(--bg-subtle);
-      border-color: var(--border-strong);
-    }
-    .faq-item summary {
-      cursor: pointer;
-      list-style: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: -0.015em;
-    }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after {
-      content: '+';
-      font: 400 20px/1 var(--font-mono);
-      color: var(--muted);
-      flex: none;
-    }
-    .faq-item[open] summary::after { content: '−'; }
-    .faq-item p {
-      margin-top: 12px;
-      font-size: 14.5px;
-      color: var(--muted);
-      line-height: 1.75;
-    }
-
-    /* Sections */
-    .section {
-      padding: 104px 0;
-      border-top: 1px solid var(--border);
-    }
-    .section-head {
-      max-width: 660px;
-      margin-bottom: 52px;
-    }
-    .section-kicker {
-      font: 500 12px/1 var(--font-mono);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 14px;
-      display: block;
-    }
-    .section-head h2 {
-      font-size: clamp(28px, 4vw, 44px);
-      font-weight: 600;
-      line-height: 1.14;
-      letter-spacing: -0.032em;
-      margin-bottom: 14px;
-    }
-    .section-head p {
-      font-size: 17px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    /* Bento Ecosystem Grid */
-    .bento {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .bento-card {
-      grid-column: span 6;
-      padding: 28px;
-      border-radius: var(--radius-lg);
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: border-color 180ms var(--ease), transform 180ms var(--ease);
-    }
-    .bento-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
-    .bento-card.wide { grid-column: span 7; }
-    .bento-card.narrow { grid-column: span 5; }
-    .bento-tag {
-      font: 500 11.5px/1 var(--font-mono);
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .bento-card h3 {
-      font-size: 21px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1.3;
-    }
-    .bento-card p {
-      font-size: 14.5px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-    .bento-meta-row {
-      margin-top: auto;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .chip {
-      font: 500 12px/1 var(--font-mono);
-      padding: 6px 10px;
-      border-radius: 8px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--fg-2);
-    }
-
-    /* Workflow Rows */
-    .workflow-list {
-      display: grid;
-      gap: 20px;
-    }
-    .workflow-row {
-      display: grid;
-      grid-template-columns: 72px minmax(0, 1fr) minmax(0, 1.05fr);
-      gap: 28px;
-      padding: 32px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: var(--bg);
-      align-items: start;
-    }
-    .wf-num {
-      font: 500 13px/1 var(--font-mono);
-      color: var(--muted);
-      padding-top: 6px;
-    }
-    .wf-copy h3 {
-      font-size: 22px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      margin-bottom: 10px;
-    }
-    .wf-copy p {
-      font-size: 15px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .wf-card {
-      padding: 18px 20px;
-      border-radius: var(--radius-md);
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      font-size: 13.5px;
-      color: var(--fg-2);
-      display: grid;
-      gap: 10px;
-    }
-    .wf-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    .wf-line:last-child { border-bottom: 0; padding-bottom: 0; }
-    .wf-line code { font-size: 12px; color: var(--muted); }
-
     /* Install Section */
     .install-grid {
       display: grid;
@@ -634,6 +1505,7 @@
       border: 1px solid var(--ink-border);
       color: var(--ink-fg);
       overflow: hidden;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.14);
     }
     .install-tabs {
       display: flex;
@@ -645,7 +1517,11 @@
       flex-wrap: wrap;
     }
     .install-panel { display: none; padding: 22px; }
-    .install-panel.active { display: grid; gap: 16px; }
+    .install-panel.active {
+      display: grid;
+      gap: 16px;
+      animation: detailSwap 240ms var(--ease-spring);
+    }
     .code-block {
       margin: 0;
       padding: 16px 18px;
@@ -707,28 +1583,68 @@
       display: grid;
       gap: 8px;
       align-content: start;
+      transition: transform 240ms var(--ease-spring), border-color 200ms var(--ease);
     }
-    .spec-card span {
-      font: 500 11.5px var(--font-mono);
-      color: var(--muted);
+    .spec-card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+    .spec-card span { font: 500 11.5px var(--font-mono); color: var(--signal); }
+    .spec-card strong { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+    .spec-card p { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+
+    /* FAQ Accordion */
+    .faq-list {
+      display: grid;
+      gap: 10px;
+      max-width: 820px;
     }
-    .spec-card strong {
-      font-size: 17px;
+    .faq-item {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 18px 22px;
+      transition: background 200ms var(--ease), border-color 200ms var(--ease);
+    }
+    .faq-item[open] {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+    }
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 16px;
       font-weight: 600;
       letter-spacing: -0.015em;
     }
-    .spec-card p {
-      font-size: 13.5px;
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font: 400 20px/1 var(--font-mono);
       color: var(--muted);
-      line-height: 1.65;
+      flex: none;
+      transition: transform 240ms var(--ease-spring), color 200ms var(--ease);
+    }
+    .faq-item[open] summary::after {
+      transform: rotate(45deg);
+      color: var(--signal);
+    }
+    .faq-item p {
+      margin-top: 12px;
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.75;
+      animation: detailSwap 260ms var(--ease-spring);
     }
 
-    /* Bottom CTA */
+    /* Bottom CTA with Orbital Radar Echo */
     .cta-section {
       padding: 40px 0 96px;
     }
     .cta-box {
-      padding: 64px 40px;
+      position: relative;
+      padding: 74px 40px;
       border-radius: 28px;
       background: var(--ink-bg);
       color: var(--ink-fg);
@@ -737,11 +1653,29 @@
       gap: 20px;
       justify-items: center;
       border: 1px solid var(--ink-border);
+      overflow: hidden;
     }
+    .cta-orbit-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      border: 1px solid rgba(52, 211, 153, 0.14);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .cta-orbit-ring.r1 { width: 320px; height: 320px; animation: ctaPulse 5s ease-in-out infinite; }
+    .cta-orbit-ring.r2 { width: 520px; height: 520px; animation: ctaPulse 5s ease-in-out 1.2s infinite; }
+    .cta-orbit-ring.r3 { width: 740px; height: 740px; animation: ctaPulse 5s ease-in-out 2.4s infinite; }
+    @keyframes ctaPulse {
+      0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.96); }
+      50% { opacity: 0.65; transform: translate(-50%, -50%) scale(1.03); }
+    }
+    .cta-box > *:not(.cta-orbit-ring) { position: relative; z-index: 2; }
     .cta-box h2 {
-      font-size: clamp(28px, 4vw, 44px);
+      font-size: clamp(28px, 4.2vw, 46px);
       font-weight: 600;
-      letter-spacing: -0.035em;
+      letter-spacing: -0.036em;
       line-height: 1.15;
       max-width: 680px;
     }
@@ -763,12 +1697,12 @@
       color: #ffffff;
       border-color: rgba(255, 255, 255, 0.22);
     }
-    .cta-box .pill.ghost:hover { background: rgba(255, 255, 255, 0.08); }
+    .cta-box .pill.ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.45); }
 
     /* Footer */
     .footer {
       border-top: 1px solid var(--border);
-      padding: 36px 0 52px;
+      padding: 36px 0 56px;
       font-size: 13.5px;
       color: var(--muted);
     }
@@ -790,24 +1724,57 @@
     @media (max-width: 960px) {
       .nav-links { display: none; }
       .bento-card, .bento-card.wide, .bento-card.narrow { grid-column: span 12; }
+      .workflow-wrap { padding-left: 0; }
+      .workflow-spine, .workflow-row::before { display: none; }
       .workflow-row { grid-template-columns: 1fr; gap: 14px; padding: 24px; }
+      .loop-body { grid-template-columns: 1fr; }
+      .loop-canvas-area { border-right: 0; border-bottom: 1px solid var(--ink-border); }
       .usecase-grid { grid-template-columns: 1fr; }
       .install-grid { grid-template-columns: 1fr; }
       .specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .loop-hud { display: none; }
     }
     @media (max-width: 600px) {
       .hero { padding: 56px 0 44px; }
-      .section { padding: 72px 0; }
+      .section, .loop-section { padding: 72px 0; }
       .specs { grid-template-columns: 1fr; }
-      .cta-box { padding: 44px 22px; }
+      .cta-box { padding: 48px 22px; }
       .stage-switcher { border-radius: 16px; width: 100%; }
-      .stage-tab { flex: 1 1 auto; text-align: center; }
+      .stage-tab { flex: 1 1 auto; text-align: center; padding: 7px 12px 9px; font-size: 12.5px; }
       .nav-github-pill { display: none; }
+      .viz-split, .viz-rag { grid-template-columns: 1fr; }
+      .viz-beam { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      [data-reveal], .line-inner, .eyebrow, .hero-sub, .hero-actions, .quick-cmd, .stage-wrap {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="nav">
+  <div class="scroll-rail" aria-hidden="true"><div class="scroll-bar" id="scroll-bar"></div></div>
+
+  <!-- Floating System Loop Telemetry HUD -->
+  <a href="#system-loop" class="loop-hud" id="loop-hud" aria-label="查看知识系统循环">
+    <span class="hud-orbit" aria-hidden="true"><i class="hud-orbit-dot"></i></span>
+    <span class="hud-meta">
+      <span id="hud-phase-code">LOOP · 01/05</span>
+      <strong id="hud-phase-name">剪藏入库 → 知识循环</strong>
+    </span>
+  </a>
+
+  <div class="copy-toast" id="copy-toast" role="status" aria-live="polite"><i></i><span id="copy-toast-text">已复制到剪贴板</span></div>
+
+  <header class="nav" id="topbar">
     <div class="container nav-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
@@ -818,6 +1785,7 @@
       <nav class="nav-links" aria-label="主导航">
         <a href="#surfaces">核心能力</a>
         <a href="#workflow">学习闭环</a>
+        <a href="#system-loop">系统循环</a>
         <a href="#usecases">适用场景</a>
         <a href="#install">终端安装</a>
         <a href="#faq">常见问题</a>
@@ -827,21 +1795,26 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </button>
         <a class="pill ghost sm nav-github-pill" href="https://github.com/tyyt53909-create/learning-center" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-        <a class="pill primary sm" href="#install">立即安装</a>
+        <a class="pill primary sm magnetic" href="#install">立即安装</a>
       </div>
     </div>
   </header>
 
   <main id="top">
-    <!-- Hero -->
-    <section class="hero">
+    <!-- Hero with Live Interactive Neural Knowledge Canvas -->
+    <section class="hero" id="hero-section">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
       <div class="container">
-        <span class="eyebrow"><i></i>OPEN SOURCE · LOCAL-FIRST · NODE.JS 24+</span>
-        <h1>让每一份收藏，<br>都真正变成你的知识。</h1>
-        <p class="hero-sub">本地优先的个人知识库与 AI 伴读工作台。将网页、YouTube/B 站视频、PDF 与笔记沉淀在你自己的电脑里，结合 AI 伴读侧栏、结构化分析、交互代码画布与间隔复习，完整消化每一篇内容。</p>
+        <span class="eyebrow"><i></i><span id="eyebrow-scramble">OPEN SOURCE · LOCAL-FIRST · NODE.JS 24+</span></span>
+        <h1>
+          <span class="line-mask"><span class="line-inner">让每一份收藏，</span></span>
+          <span class="line-mask"><span class="line-inner">都真正变成你的知识。</span></span>
+        </h1>
+        <p class="hero-sub">本地优先的个人知识库与 AI 伴读工作台。将网页、YouTube/B 站视频、PDF 与笔记沉淀在你自己的电脑里，通过收集、向量索引、AI 伴读、交互画布与间隔复习，构筑永不中断的个人知识循环。</p>
         <div class="hero-actions">
-          <a class="pill primary" href="#install">终端一键安装</a>
-          <a class="pill ghost" href="https://github.com/tyyt53909-create/learning-center" target="_blank" rel="noopener noreferrer">查看 GitHub 源码 ↗</a>
+          <a class="pill primary magnetic" href="#install">终端一键安装</a>
+          <a class="pill ghost magnetic" href="#system-loop">探索知识循环 ↓</a>
+          <a class="pill ghost magnetic" href="https://github.com/tyyt53909-create/learning-center" target="_blank" rel="noopener noreferrer">GitHub 源码 ↗</a>
         </div>
 
         <!-- Hero One-line Installer -->
@@ -855,55 +1828,60 @@
           </div>
           <div class="quick-cmd-body">
             <span class="prompt-sign">$</span>
-            <code id="hero-cmd-text">curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash</code>
+            <span><code id="hero-cmd-text">curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash</code><span class="cmd-cursor" aria-hidden="true"></span></span>
           </div>
         </div>
 
-        <!-- Interactive Product Stage (Real High-Res Screenshots) -->
-        <div class="stage-wrap">
-          <div class="stage-switcher" role="tablist" aria-label="产品界面实景截图">
-            <button type="button" class="stage-tab active" data-stage="home">项目主页工作台</button>
-            <button type="button" class="stage-tab" data-stage="reader">阅读页 + AI 伴读侧栏</button>
-            <button type="button" class="stage-tab" data-stage="studio">AI 问答与交互代码画布</button>
-            <button type="button" class="stage-tab" data-stage="review">SM-2 间隔复习闪卡</button>
+        <!-- 3D Scroll-Driven Real Product Stage with Auto-Cycling Loop -->
+        <div class="stage-wrap" id="stage-wrap">
+          <div class="stage-controls">
+            <div class="stage-switcher" role="tablist" aria-label="产品界面实景截图">
+              <button type="button" class="stage-tab active" data-stage="home">项目主页工作台<span class="tab-progress"></span></button>
+              <button type="button" class="stage-tab" data-stage="reader">阅读页 + AI 伴读侧栏<span class="tab-progress"></span></button>
+              <button type="button" class="stage-tab" data-stage="studio">AI 问答与交互代码画布<span class="tab-progress"></span></button>
+              <button type="button" class="stage-tab" data-stage="review">SM-2 间隔复习闪卡<span class="tab-progress"></span></button>
+            </div>
+            <button type="button" class="autoplay-btn" id="stage-autoplay-btn" aria-pressed="true">⏸ 自动轮播</button>
           </div>
 
-          <div class="window-frame">
-            <div class="window-bar">
-              <div class="traffic"><span></span><span></span><span></span></div>
-              <div class="window-url" id="stage-url">http://127.0.0.1:3000/</div>
-              <div style="width:44px"></div>
-            </div>
-
-            <div class="window-pane active" data-pane="home">
-              <img class="stage-shot" src="./assets/screenshots/home.png" alt="学习中心主页工作台实景截图：侧边栏智能圈子分类、继续阅读卡片、学习概览与多格式资料库">
-              <div class="stage-caption">
-                <div><strong>项目主页工作台</strong>侧边栏智能圈子分组、继续阅读卡片、全局 ⌘K 混合搜索与多格式资料库一目了然。</div>
-                <div class="stage-caption-tags"><span>圈子分类</span><span>混合搜索 ⌘K</span><span>批量管理</span></div>
+          <div class="stage-3d-shell">
+            <div class="window-frame" id="stage-frame">
+              <div class="window-bar">
+                <div class="traffic"><span></span><span></span><span></span></div>
+                <div class="window-url" id="stage-url">http://127.0.0.1:3000/</div>
+                <span class="window-live-dot"><i></i>LOCAL</span>
               </div>
-            </div>
 
-            <div class="window-pane" data-pane="reader">
-              <img class="stage-shot" src="./assets/screenshots/reader-ai.png" alt="阅读页与右侧停靠 AI 伴读侧栏实景截图：正文精读、带原文引用跳转的 AI 伴读与记入本篇笔记">
-              <div class="stage-caption">
-                <div><strong>阅读页 + AI 伴读侧栏</strong>按 ⌘. 在右侧分屏打开伴读，自动连接当前资料，点击引用直接定位高亮左侧原文段落。</div>
-                <div class="stage-caption-tags"><span>快捷键 ⌘.</span><span>已连接本篇</span><span>对话 / 出题 / 画布</span></div>
+              <div class="window-pane active" data-pane="home">
+                <img class="stage-shot" src="./assets/screenshots/home.png" alt="学习中心主页工作台实景截图：侧边栏智能圈子分类、继续阅读卡片、学习概览与多格式资料库">
+                <div class="stage-caption">
+                  <div><strong>01 · 项目主页工作台</strong>侧边栏智能圈子分组、继续阅读卡片、全局 ⌘K 混合搜索与多格式资料库一目了然。</div>
+                  <div class="stage-caption-tags"><span>圈子分类</span><span>混合搜索 ⌘K</span><span>批量管理</span></div>
+                </div>
               </div>
-            </div>
 
-            <div class="window-pane" data-pane="studio">
-              <img class="stage-shot" src="./assets/screenshots/ask-studio.png" alt="AI 问答工坊与安全沙箱交互代码画布实景截图：分屏实时编辑与可视化预览">
-              <div class="stage-caption">
-                <div><strong>AI 问答与交互代码画布</strong>在安全沙箱内实时运行 HTML/CSS/JS 交互演示、支持在线改代码与即时互动测验。</div>
-                <div class="stage-caption-tags"><span>沙箱画布</span><span>互动选择题</span><span>实时联网</span></div>
+              <div class="window-pane" data-pane="reader">
+                <img class="stage-shot" src="./assets/screenshots/reader-ai.png" alt="阅读页与右侧停靠 AI 伴读侧栏实景截图：正文精读、带原文引用跳转的 AI 伴读与记入本篇笔记">
+                <div class="stage-caption">
+                  <div><strong>02 · 阅读页 + AI 伴读侧栏</strong>按 ⌘. 在右侧分屏打开伴读，自动连接当前资料，点击引用直接定位高亮左侧原文段落。</div>
+                  <div class="stage-caption-tags"><span>快捷键 ⌘.</span><span>已连接本篇</span><span>对话 / 出题 / 画布</span></div>
+                </div>
               </div>
-            </div>
 
-            <div class="window-pane" data-pane="review">
-              <img class="stage-shot" src="./assets/screenshots/review.png" alt="SM-2 间隔复习工作台实景截图：主动回忆闪卡与 1-4 快捷评分">
-              <div class="stage-caption">
-                <div><strong>SM-2 间隔复习工作台</strong>把 AI 核心要点、随堂错题与个人笔记转为闪卡，Space 翻面、1–4 评分巩固长期记忆。</div>
-                <div class="stage-caption-tags"><span>SM-2 算法</span><span>一键制卡</span><span>原文溯源</span></div>
+              <div class="window-pane" data-pane="studio">
+                <img class="stage-shot" src="./assets/screenshots/ask-studio.png" alt="AI 问答工坊与安全沙箱交互代码画布实景截图：分屏实时编辑与可视化预览">
+                <div class="stage-caption">
+                  <div><strong>03 · AI 问答与交互代码画布</strong>在安全沙箱内实时运行 HTML/CSS/JS 交互演示、支持在线改代码与即时互动测验。</div>
+                  <div class="stage-caption-tags"><span>沙箱画布</span><span>互动选择题</span><span>实时联网</span></div>
+                </div>
+              </div>
+
+              <div class="window-pane" data-pane="review">
+                <img class="stage-shot" src="./assets/screenshots/review.png" alt="SM-2 间隔复习工作台实景截图：主动回忆闪卡与 1-4 快捷评分">
+                <div class="stage-caption">
+                  <div><strong>04 · SM-2 间隔复习工作台</strong>把 AI 核心要点、随堂错题与个人笔记转为闪卡，Space 翻面、1–4 评分巩固长期记忆。</div>
+                  <div class="stage-caption-tags"><span>SM-2 算法</span><span>一键制卡</span><span>原文溯源</span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -911,19 +1889,60 @@
       </div>
     </section>
 
-    <!-- Multi-Surface Bento -->
+    <!-- Infinite Ecosystem Marquee -->
+    <div class="marquee-band" aria-label="支持的内容格式与模型生态">
+      <div class="marquee-track">
+        <span class="marquee-pill"><b>ENGINE</b> 嵌入式 PGlite + pgvector</span>
+        <span class="marquee-pill"><b>VIDEO</b> YouTube 免 yt-dlp 字幕直连</span>
+        <span class="marquee-pill"><b>AI</b> OpenAI · DeepSeek · 通义千问</span>
+        <span class="marquee-pill"><b>LOCAL</b> Ollama 本地模型热切换</span>
+        <span class="marquee-pill"><b>CLIP</b> Chrome 剪藏扩展 ⌘⇧S</span>
+        <span class="marquee-pill"><b>COMPANION</b> 阅读页右侧伴读 ⌘.</span>
+        <span class="marquee-pill"><b>WEB</b> DuckDuckGo / Tavily / Brave / Serper</span>
+        <span class="marquee-pill"><b>CANVAS</b> 安全沙箱实时代码画布</span>
+        <span class="marquee-pill"><b>MEMORY</b> SM-2 间隔重复算法</span>
+        <span class="marquee-pill"><b>VISION</b> 图片多模态视觉分析</span>
+        <!-- Seamless Loop Duplicate -->
+        <span class="marquee-pill"><b>ENGINE</b> 嵌入式 PGlite + pgvector</span>
+        <span class="marquee-pill"><b>VIDEO</b> YouTube 免 yt-dlp 字幕直连</span>
+        <span class="marquee-pill"><b>AI</b> OpenAI · DeepSeek · 通义千问</span>
+        <span class="marquee-pill"><b>LOCAL</b> Ollama 本地模型热切换</span>
+        <span class="marquee-pill"><b>CLIP</b> Chrome 剪藏扩展 ⌘⇧S</span>
+        <span class="marquee-pill"><b>COMPANION</b> 阅读页右侧伴读 ⌘.</span>
+        <span class="marquee-pill"><b>WEB</b> DuckDuckGo / Tavily / Brave / Serper</span>
+        <span class="marquee-pill"><b>CANVAS</b> 安全沙箱实时代码画布</span>
+        <span class="marquee-pill"><b>MEMORY</b> SM-2 间隔重复算法</span>
+        <span class="marquee-pill"><b>VISION</b> 图片多模态视觉分析</span>
+      </div>
+    </div>
+
+    <!-- Multi-Surface Bento with Spotlight + Live Micro-Visuals -->
     <section class="section" id="surfaces">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <span class="section-kicker">CAPABILITIES</span>
           <h2>为深度阅读与思考打造的<br>多界面协同体验。</h2>
           <p>把浏览器剪藏、沉浸式阅读、伴读问答、交互实验与间隔复习打通在同一个本地工作空间里。</p>
         </div>
         <div class="bento">
-          <article class="bento-card wide">
+          <article class="bento-card wide spotlight-card" data-reveal style="--delay:40ms">
             <span class="bento-tag">01 / SIDE PANEL COMPANION</span>
             <h3>阅读页右侧 AI 伴读侧栏</h3>
             <p>打开任意文章、PDF、笔记或视频，按 <code>⌘.</code> 即可在右侧停靠展开伴读侧栏。上下文自动绑定当前资料，支持对话、出题、画布与联网切换；点击引用直接原地滚动高亮原文段落，并可将回答一键记入本篇笔记。</p>
+            <div class="bento-viz" aria-hidden="true">
+              <div class="viz-split">
+                <div class="viz-doc">
+                  <div class="viz-line" style="width:72%"></div>
+                  <div class="viz-line hl" style="width:94%"></div>
+                  <div class="viz-line" style="width:82%"></div>
+                </div>
+                <div class="viz-beam"></div>
+                <div class="viz-ai-box">
+                  <span>✦ 已连接本篇 · 逐字溯源</span>
+                  <div>↗ 点击引用跳回高亮段落</div>
+                </div>
+              </div>
+            </div>
             <div class="bento-meta-row">
               <span class="chip">快捷键 ⌘. / Ctrl+.</span>
               <span class="chip">按资料隔离对话历史</span>
@@ -931,10 +1950,19 @@
             </div>
           </article>
 
-          <article class="bento-card narrow">
+          <article class="bento-card narrow spotlight-card" data-reveal style="--delay:120ms">
             <span class="bento-tag">02 / CHROME EXTENSION</span>
             <h3>Chrome 剪藏助手 &amp; 自动化安装</h3>
-            <p>一键提取网页正文、仅剪藏划词选中内容或自动识别 YouTube / B 站视频。内置本机自动化安装向导：点击按钮自动打开 Chrome 扩展页并定位插件文件夹，拖入即装；同时提供免安装的书签栏方案。</p>
+            <p>一键提取网页正文、划词选中或自动识别 YouTube/B 站视频。点击本机按钮自动打开 Chrome 扩展页并定位插件文件夹，拖入即装；同时内置免安装书签方案。</p>
+            <div class="bento-viz" aria-hidden="true">
+              <div class="viz-pipe">
+                <span class="viz-node">网页 / 视频</span>
+                <span class="viz-wire"></span>
+                <span class="viz-node em">⌘⇧S 剪藏</span>
+                <span class="viz-wire"></span>
+                <span class="viz-node">智能圈子</span>
+              </div>
+            </div>
             <div class="bento-meta-row">
               <span class="chip">快捷键 ⌘⇧S</span>
               <span class="chip">右键静默剪藏</span>
@@ -942,10 +1970,17 @@
             </div>
           </article>
 
-          <article class="bento-card narrow">
+          <article class="bento-card narrow spotlight-card" data-reveal style="--delay:180ms">
             <span class="bento-tag">03 / INTERACTIVE STUDIO</span>
             <h3>互动选择题 &amp; 沙箱代码画布</h3>
-            <p>不只是聊天框。在问答页或伴读侧栏随时切换「选择题」即时判分并将错题转闪卡，或用「代码画布」生成自包含 HTML/CSS/JS 交互演示，在严格沙箱内实时编辑运行。</p>
+            <p>在问答页或伴读侧栏随时切换「选择题」即时判分并将错题转闪卡，或用「代码画布」生成自包含 HTML/CSS/JS 交互演示，在严格沙箱内实时编辑运行。</p>
+            <div class="bento-viz" aria-hidden="true">
+              <svg class="viz-curve" viewBox="0 0 280 68">
+                <path d="M 18 14 Q 140 82 262 14" fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="2" stroke-dasharray="4 4"/>
+                <circle cx="140" cy="48" r="3.5" fill="#10a37f" opacity="0.45"/>
+                <circle class="curve-dot" r="6" fill="#10a37f" style="filter:drop-shadow(0 0 8px rgba(16,163,127,0.85))"/>
+              </svg>
+            </div>
             <div class="bento-meta-row">
               <span class="chip">即时判分</span>
               <span class="chip">iframe 沙箱</span>
@@ -953,10 +1988,23 @@
             </div>
           </article>
 
-          <article class="bento-card wide">
+          <article class="bento-card wide spotlight-card" data-reveal style="--delay:240ms">
             <span class="bento-tag">04 / HYBRID RAG &amp; WEB SEARCH</span>
             <h3>本地向量混合检索 + 实时联网搜索</h3>
-            <p>内嵌 PostgreSQL + <code>pgvector</code> 实现语义向量与关键词混合检索，回答严格执行逐字子串防幻觉校验。遇到需要外部补充的问题时，一键开启「联网」融合实时网页结果（默认免密钥 DuckDuckGo，可选 Tavily / Brave / Serper / SearXNG），网页来源可直接一键收藏入库。</p>
+            <p>内嵌 PostgreSQL + <code>pgvector</code> 实现语义向量与关键词混合检索，回答严格执行逐字子串防幻觉校验。一键开启「联网」融合实时网页结果（默认免密钥 DuckDuckGo，可选 Tavily / Brave / Serper / SearXNG），网页来源可直接一键收藏入库。</p>
+            <div class="bento-viz" aria-hidden="true">
+              <div class="viz-rag">
+                <div class="viz-lane">
+                  <div class="viz-bar-row"><span>pgvector</span><div class="viz-bar-track"><div class="viz-bar-fill" style="width:92%"></div></div></div>
+                  <div class="viz-bar-row"><span>Keyword</span><div class="viz-bar-track"><div class="viz-bar-fill" style="width:76%;animation-delay:0.6s"></div></div></div>
+                </div>
+                <div class="viz-shield">✓ 逐字校验</div>
+                <div class="viz-lane">
+                  <div class="viz-bar-row"><span>Web Live</span><div class="viz-bar-track"><div class="viz-bar-fill" style="width:84%;animation-delay:1.1s"></div></div></div>
+                  <div class="viz-bar-row"><span>Cite Link</span><div class="viz-bar-track"><div class="viz-bar-fill" style="width:96%;animation-delay:1.6s"></div></div></div>
+                </div>
+              </div>
+            </div>
             <div class="bento-meta-row">
               <span class="chip">pgvector 混合检索</span>
               <span class="chip">逐字引用防幻觉</span>
@@ -967,51 +2015,188 @@
       </div>
     </section>
 
-    <!-- Workflow Breakdown -->
+    <!-- Workflow Breakdown with Scroll-Linked Conduit -->
     <section class="section" id="workflow">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <span class="section-kicker">WORKFLOW</span>
-          <h2>从随手收藏到长期掌握，<br>三步完成知识闭环。</h2>
+          <h2>从随手收藏到长期掌握，<br>三步驱动知识沉淀。</h2>
           <p>不再让收藏夹吃灰。每一份进入学习中心的资料都会经过解析、分析与回忆强化。</p>
         </div>
-        <div class="workflow-list">
-          <div class="workflow-row">
-            <div class="wf-num">STEP 01</div>
-            <div class="wf-copy">
-              <h3>多格式收藏 &amp; 智能圈子归类</h3>
-              <p>支持网页链接、YouTube/B 站视频、PDF（提取文本与原件双模式）、Markdown 笔记、本地视频与图片。YouTube 支持纯 Node 免 <code>yt-dlp</code> 直连抓取字幕与简介；圈子支持分类分组，以及关键词、域名、类型与向量相似度自动归类。</p>
+        <div class="workflow-wrap" id="workflow-wrap">
+          <div class="workflow-spine" aria-hidden="true"><div class="workflow-spine-fill" id="workflow-spine-fill"></div></div>
+          <div class="workflow-list">
+            <div class="workflow-row" data-reveal data-wf-step="1">
+              <div class="wf-num">STEP 01</div>
+              <div class="wf-copy">
+                <h3>多格式收藏 &amp; 智能圈子归类</h3>
+                <p>支持网页链接、YouTube/B 站视频、PDF（提取文本与原件双模式）、Markdown 笔记、本地视频与图片。YouTube 支持纯 Node 免 <code>yt-dlp</code> 直连抓取字幕与简介；圈子支持分类分组，以及关键词、域名、类型与向量相似度自动归类。</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-line"><span>网页 / YouTube / B站</span><code>自动提取正文与字幕锚点</code></div>
+                <div class="wf-line"><span>PDF / Markdown / 图片</span><code>单文件最高支持 512 MB</code></div>
+                <div class="wf-line"><span>智能圈子规则</span><code>规则 + AI 推荐 + 语义相似度</code></div>
+              </div>
             </div>
-            <div class="wf-card">
-              <div class="wf-line"><span>网页 / YouTube / B站</span><code>自动提取正文与字幕锚点</code></div>
-              <div class="wf-line"><span>PDF / Markdown / 图片</span><code>单文件最高支持 512 MB</code></div>
-              <div class="wf-line"><span>智能圈子规则</span><code>规则 + AI 推荐 + 语义相似度</code></div>
+
+            <div class="workflow-row" data-reveal data-wf-step="2">
+              <div class="wf-num">STEP 02</div>
+              <div class="wf-copy">
+                <h3>全类型 AI 智能分析与伴读</h3>
+                <p>后台自动提炼「主要讲了什么 · 核心摘要」与编号核心要点。无字幕视频自动结合元数据与联网给出辅助分析（粘贴文稿后可升级为逐字精析），图片支持多模态视觉读图。随时拉开右侧伴读侧栏追问细节。</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-line"><span>核心摘要与要点</span><code>3 句主旨 + 3–8 个结构化重点</code></div>
+                <div class="wf-line"><span>可验证来源</span><code>点击引用直接跳回原文或视频秒数</code></div>
+                <div class="wf-line"><span>无字幕/扫描件兜底</span><code>手动粘贴文稿或联网辅助解读</code></div>
+              </div>
+            </div>
+
+            <div class="workflow-row" data-reveal data-wf-step="3">
+              <div class="wf-num">STEP 03</div>
+              <div class="wf-copy">
+                <h3>主动回忆闪卡与 SM-2 间隔复习</h3>
+                <p>将 AI 提炼要点、个人思考笔记或随堂测验错题一键转为复习闪卡，也可让 AI 基于原文深度出题。复习台内置 SM-2 算法，用 <code>Space</code> 翻面、<code>1–4</code> 评分，按科学间隔巩固长期记忆。</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-line"><span>多源一键制卡</span><code>要点制卡 / AI 深度制卡 / 错题转卡</code></div>
+                <div class="wf-line"><span>沉浸式复习工作台</span><code>Space 翻卡 · 1–4 快捷评分</code></div>
+                <div class="wf-line"><span>随时回溯原文</span><code>每张卡片保留原资料锚点链接</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRAND CENTERPIECE: Interactive Closed-Loop System Visualizer -->
+    <section class="loop-section" id="system-loop">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="section-kicker">CLOSED-LOOP SYSTEM</span>
+          <h2>所有模块首尾相连，<br>构成自驱演化的知识循环。</h2>
+          <p>收藏不是终点，复习也不是终点。每一轮伴读追问、联网查证与闪卡回忆产生的新洞见，都会回流进本地知识核心，驱动下一轮更深度的连接与探索。</p>
+        </div>
+
+        <div class="loop-board" data-reveal>
+          <div class="loop-board-top">
+            <div class="loop-status"><i></i><span id="loop-live-banner">SYSTEM LOOP ACTIVE · 01 剪藏入库 → 02 向量与圈子</span></div>
+            <div class="loop-actions">
+              <button type="button" class="pulse-trigger-btn" id="inject-pulse-btn">✦ 投入一份新资料（触发全环脉冲）</button>
             </div>
           </div>
 
-          <div class="workflow-row">
-            <div class="wf-num">STEP 02</div>
-            <div class="wf-copy">
-              <h3>全类型 AI 智能分析与伴读</h3>
-              <p>后台自动提炼「主要讲了什么 · 核心摘要」与编号核心要点。无字幕视频自动结合元数据与联网给出辅助分析（粘贴文稿后可升级为逐字精析），图片支持多模态视觉读图。随时拉开右侧伴读侧栏追问细节。</p>
-            </div>
-            <div class="wf-card">
-              <div class="wf-line"><span>核心摘要与要点</span><code>3 句主旨 + 3–8 个结构化重点</code></div>
-              <div class="wf-line"><span>可验证来源</span><code>点击引用直接跳回原文或视频秒数</code></div>
-              <div class="wf-line"><span>无字幕/扫描件兜底</span><code>手动粘贴文稿或联网辅助解读</code></div>
-            </div>
-          </div>
+          <div class="loop-body">
+            <div class="loop-canvas-area">
+              <svg class="loop-svg" id="loop-svg" viewBox="0 0 560 500" role="img" aria-label="学习中心五阶段闭环系统交互图">
+                <defs>
+                  <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#10a37f" stop-opacity="0.32"/>
+                    <stop offset="100%" stop-color="#10a37f" stop-opacity="0.02"/>
+                  </radialGradient>
+                  <filter id="glowDot" x="-80%" y="-80%" width="260%" height="260%">
+                    <feGaussianBlur stdDeviation="3.2" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
 
-          <div class="workflow-row">
-            <div class="wf-num">STEP 03</div>
-            <div class="wf-copy">
-              <h3>主动回忆闪卡与 SM-2 间隔复习</h3>
-              <p>将 AI 提炼要点、个人思考笔记或随堂测验错题一键转为复习闪卡，也可让 AI 基于原文深度出题。复习台内置 SM-2 算法，用 <code>Space</code> 翻面、<code>1–4</code> 评分，按科学间隔巩固长期记忆。</p>
+                <!-- Decorative Orbital Telemetry Rings -->
+                <circle cx="280" cy="250" r="188" class="orbit-ring-dash"/>
+                <circle cx="280" cy="250" r="118" fill="none" stroke="rgba(255,255,255,0.05)"/>
+
+                <!-- Radial Spokes to Central Local Core -->
+                <g id="loop-spokes">
+                  <line id="spoke-0" class="spoke-line lit" x1="280" y1="250" x2="280" y2="74"/>
+                  <line id="spoke-1" class="spoke-line" x1="280" y1="250" x2="447" y2="196"/>
+                  <line id="spoke-2" class="spoke-line" x1="280" y1="250" x2="384" y2="392"/>
+                  <line id="spoke-3" class="spoke-line" x1="280" y1="250" x2="176" y2="392"/>
+                  <line id="spoke-4" class="spoke-line" x1="280" y1="250" x2="113" y2="196"/>
+                </g>
+
+                <!-- Curved Closed-Loop Paths (0→1→2→3→4→0) -->
+                <g id="loop-paths">
+                  <path id="arc-0" class="loop-path-base" d="M 280 74 A 176 176 0 0 1 447 196"/>
+                  <path id="arc-1" class="loop-path-base" d="M 447 196 A 176 176 0 0 1 384 392"/>
+                  <path id="arc-2" class="loop-path-base" d="M 384 392 A 176 176 0 0 1 176 392"/>
+                  <path id="arc-3" class="loop-path-base" d="M 176 392 A 176 176 0 0 1 113 196"/>
+                  <path id="arc-4" class="loop-path-base" d="M 113 196 A 176 176 0 0 1 280 74"/>
+
+                  <path id="arc-lit-0" class="loop-path-active lit" d="M 280 74 A 176 176 0 0 1 447 196"/>
+                  <path id="arc-lit-1" class="loop-path-active" d="M 447 196 A 176 176 0 0 1 384 392"/>
+                  <path id="arc-lit-2" class="loop-path-active" d="M 384 392 A 176 176 0 0 1 176 392"/>
+                  <path id="arc-lit-3" class="loop-path-active" d="M 176 392 A 176 176 0 0 1 113 196"/>
+                  <path id="arc-lit-4" class="loop-path-active" d="M 113 196 A 176 176 0 0 1 280 74"/>
+                </g>
+
+                <!-- Traveling Particle Layer (JS Driven at 60fps) -->
+                <g id="loop-particles"></g>
+
+                <!-- Central Local Knowledge Core -->
+                <g id="loop-core">
+                  <circle cx="280" cy="250" r="66" fill="url(#coreGrad)"/>
+                  <circle cx="280" cy="250" r="54" class="core-halo"/>
+                  <circle cx="280" cy="250" r="44" fill="#0d0d11" stroke="rgba(52,211,153,0.55)" stroke-width="1.5"/>
+                  <text x="280" y="244" fill="#34d399" font-family="SF Mono, monospace" font-size="9.5" font-weight="600" text-anchor="middle" letter-spacing="0.08em">LOCAL CORE</text>
+                  <text x="280" y="261" fill="#ffffff" font-size="13" font-weight="600" text-anchor="middle">PGlite + 向量</text>
+                </g>
+
+                <!-- 5 Interactive System Nodes -->
+                <g class="loop-node-g active" data-loop-node="0" transform="translate(280, 74)">
+                  <circle r="38" class="loop-node-ring"/>
+                  <circle r="38" class="loop-node-circle"/>
+                  <text y="-6" class="loop-node-idx">01</text>
+                  <text y="12" class="loop-node-lbl">剪藏入库</text>
+                </g>
+                <g class="loop-node-g" data-loop-node="1" transform="translate(447, 196)">
+                  <circle r="38" class="loop-node-ring"/>
+                  <circle r="38" class="loop-node-circle"/>
+                  <text y="-6" class="loop-node-idx">02</text>
+                  <text y="12" class="loop-node-lbl">索引归圈</text>
+                </g>
+                <g class="loop-node-g" data-loop-node="2" transform="translate(384, 392)">
+                  <circle r="38" class="loop-node-ring"/>
+                  <circle r="38" class="loop-node-circle"/>
+                  <text y="-6" class="loop-node-idx">03</text>
+                  <text y="12" class="loop-node-lbl">AI 分析</text>
+                </g>
+                <g class="loop-node-g" data-loop-node="3" transform="translate(176, 392)">
+                  <circle r="38" class="loop-node-ring"/>
+                  <circle r="38" class="loop-node-circle"/>
+                  <text y="-6" class="loop-node-idx">04</text>
+                  <text y="12" class="loop-node-lbl">伴读画布</text>
+                </g>
+                <g class="loop-node-g" data-loop-node="4" transform="translate(113, 196)">
+                  <circle r="38" class="loop-node-ring"/>
+                  <circle r="38" class="loop-node-circle"/>
+                  <text y="-6" class="loop-node-idx">05</text>
+                  <text y="12" class="loop-node-lbl">间隔复习</text>
+                </g>
+              </svg>
             </div>
-            <div class="wf-card">
-              <div class="wf-line"><span>多源一键制卡</span><code>要点制卡 / AI 深度制卡 / 错题转卡</code></div>
-              <div class="wf-line"><span>沉浸式复习工作台</span><code>Space 翻卡 · 1–4 快捷评分</code></div>
-              <div class="wf-line"><span>随时回溯原文</span><code>每张卡片保留原资料锚点链接</code></div>
+
+            <div class="loop-inspector">
+              <div class="loop-step-pills" role="tablist" aria-label="系统循环阶段">
+                <button type="button" class="loop-step-pill active" data-loop-node="0">01 剪藏</button>
+                <button type="button" class="loop-step-pill" data-loop-node="1">02 索引</button>
+                <button type="button" class="loop-step-pill" data-loop-node="2">03 分析</button>
+                <button type="button" class="loop-step-pill" data-loop-node="3">04 伴读</button>
+                <button type="button" class="loop-step-pill" data-loop-node="4">05 复习</button>
+              </div>
+
+              <div class="loop-detail" id="loop-detail-box">
+                <span class="loop-detail-kicker" id="ld-kicker">STAGE 01 / INGESTION</span>
+                <h3 id="ld-title">多源剪藏与原文锚点切片</h3>
+                <p id="ld-desc">通过 Chrome 插件（⌘⇧S）、免安装书签或拖入本地文件，将网页、YouTube 字幕、PDF 与图片收入本机。后台自动切分带行号/时间戳的 content_anchors。</p>
+                <div class="loop-packet">
+                  <div class="loop-packet-head"><span id="ld-route">POST /api/items/url</span><span id="ld-table">→ content_anchors</span></div>
+                  <div id="ld-payload"><span class="k">input:</span> Chrome 剪藏 / YouTube / PDF / 图片<br><span class="k">output:</span> 结构化原文锚点 + 原始文件落盘</div>
+                </div>
+              </div>
+
+              <div class="loop-next-bar">
+                <span>闭环流向</span>
+                <strong id="ld-next">01 剪藏入库 → 02 索引归圈</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -1021,13 +2206,13 @@
     <!-- Use Cases Section -->
     <section class="section" id="usecases">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <span class="section-kicker">USE CASES</span>
           <h2>为真实的学习与研究场景而生。</h2>
           <p>无论你是在啃论文、看技术视频，还是沉淀跨领域案例灵感，学习中心都能让资料持续产生复利。</p>
         </div>
         <div class="usecase-grid">
-          <article class="usecase-card">
+          <article class="usecase-card" data-reveal style="--delay:40ms">
             <span class="usecase-role">DEVELOPERS &amp; RESEARCHERS</span>
             <h3>开发者与技术研究者</h3>
             <p>集中收藏 arXiv 论文 PDF、框架文档、GitHub 讨论与 YouTube 技术讲座，随时跨资料对比架构权衡。</p>
@@ -1037,7 +2222,7 @@
               <li>pgvector 语义 + 关键词混合搜索不错过代码标识</li>
             </ul>
           </article>
-          <article class="usecase-card">
+          <article class="usecase-card" data-reveal style="--delay:120ms">
             <span class="usecase-role">LIFELONG LEARNERS &amp; STUDENTS</span>
             <h3>深度学习者与备考学生</h3>
             <p>告别“收藏即学会”的错觉，用主动测验与间隔重复把看过的内容真正内化为长期记忆。</p>
@@ -1047,7 +2232,7 @@
               <li>每日 SM-2 复习工作台按遗忘曲线自动排期</li>
             </ul>
           </article>
-          <article class="usecase-card">
+          <article class="usecase-card" data-reveal style="--delay:200ms">
             <span class="usecase-role">PRODUCT &amp; CREATORS</span>
             <h3>产品经理与内容创作者</h3>
             <p>随时剪藏竞品分析、行业报告、长视频观点与截图，沉淀可复用、可导出的个人素材库。</p>
@@ -1064,13 +2249,13 @@
     <!-- Installation Section -->
     <section class="section" id="install">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <span class="section-kicker">INSTALLATION</span>
           <h2>一条命令，在本地运行。</h2>
           <p>无需配置外部数据库、无需 Docker。只需 Node.js 24.15+ 或 26+，一分钟即可启动完整服务。</p>
         </div>
 
-        <div class="install-grid">
+        <div class="install-grid" data-reveal>
           <div class="install-terminal">
             <div class="install-tabs">
               <div class="cmd-tabs" role="tablist">
@@ -1136,28 +2321,28 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
     <!-- Local-first Architecture & Privacy -->
     <section class="section" id="architecture">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <span class="section-kicker">LOCAL-FIRST ARCHITECTURE</span>
           <h2>你的知识与密钥，<br>始终留在你自己的设备上。</h2>
           <p>面向个人长期积累的极简工程设计，无云端绑定、无供应商锁定。</p>
         </div>
         <div class="specs">
-          <div class="spec-card">
+          <div class="spec-card" data-reveal style="--delay:40ms">
             <span>STORAGE</span>
             <strong>嵌入式 PGlite + pgvector</strong>
             <p>内置 PostgreSQL 与向量扩展，零运维开箱即用；也支持通过 <code>DATABASE_URL</code> 接入独立 PostgreSQL 实例。</p>
           </div>
-          <div class="spec-card">
+          <div class="spec-card" data-reveal style="--delay:100ms">
             <span>MODELS</span>
             <strong>兼容任意 OpenAI 接口</strong>
             <p>支持 OpenAI、DeepSeek、通义千问、硅基流动与本地 Ollama；配置在 Web 端热更新，无需重启。</p>
           </div>
-          <div class="spec-card">
+          <div class="spec-card" data-reveal style="--delay:160ms">
             <span>SECURITY</span>
             <strong>默认本机环回隔离</strong>
             <p>所有原文件、数据库与 API Key 仅存放在本地 <code>.data/</code>；非 loopback 监听强制要求 <code>ACCESS_TOKEN</code>。</p>
           </div>
-          <div class="spec-card">
+          <div class="spec-card" data-reveal style="--delay:220ms">
             <span>PORTABILITY</span>
             <strong>开放 Markdown 导出</strong>
             <p>单篇资料与 AI 对话随时一键导出标准 Markdown（含摘要、逐字引用、笔记与原文），拒绝数据囚笼。</p>
@@ -1169,12 +2354,12 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
     <!-- FAQ Section -->
     <section class="section" id="faq">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <span class="section-kicker">FAQ</span>
           <h2>常见问题</h2>
           <p>关于运行环境、模型配置、视频解析与隐私边界的简明解答。</p>
         </div>
-        <div class="faq-list">
+        <div class="faq-list" data-reveal>
           <details class="faq-item" open>
             <summary>项目免费吗？必须用 OpenAI 才能运行吗？</summary>
             <p>项目完全开源免费，本地运行无需任何订阅。AI 功能兼容所有 OpenAI 接口协议，你可以自由选择 <strong>OpenAI、DeepSeek、通义千问、硅基流动</strong> 或 <strong>本地 Ollama</strong>；不填 API Key 也能完整使用收藏、阅读、笔记、检索、手动闪卡复习以及内置的互动测验与代码画布示例。</p>
@@ -1199,15 +2384,18 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
       </div>
     </section>
 
-    <!-- Bottom CTA -->
+    <!-- Bottom CTA with Orbital Pulse Echo -->
     <section class="cta-section">
       <div class="container">
-        <div class="cta-box">
-          <h2>开始搭建你的本地 AI 知识库。</h2>
-          <p>完全开源、本地运行、几分钟内即可把散落各处的文章、视频和想法连接成体系。</p>
+        <div class="cta-box" data-reveal>
+          <span class="cta-orbit-ring r1" aria-hidden="true"></span>
+          <span class="cta-orbit-ring r2" aria-hidden="true"></span>
+          <span class="cta-orbit-ring r3" aria-hidden="true"></span>
+          <h2>启动你的本地 AI 知识循环。</h2>
+          <p>完全开源、本地运行、几分钟内把散落各处的文章、视频和思考连接成永动体系。</p>
           <div class="cta-btns">
-            <button type="button" class="pill primary" id="bottom-copy">复制终端一键安装命令</button>
-            <a class="pill ghost" href="https://github.com/tyyt53909-create/learning-center" target="_blank" rel="noopener noreferrer">前往 GitHub 仓库 ↗</a>
+            <button type="button" class="pill primary magnetic" id="bottom-copy">复制终端一键安装命令</button>
+            <a class="pill ghost magnetic" href="https://github.com/tyyt53909-create/learning-center" target="_blank" rel="noopener noreferrer">前往 GitHub 仓库 ↗</a>
           </div>
         </div>
       </div>
@@ -1226,6 +2414,7 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
         <a href="https://github.com/tyyt53909-create/learning-center" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="https://github.com/tyyt53909-create/learning-center/blob/main/README.md" target="_blank" rel="noopener noreferrer">使用文档</a>
         <a href="https://github.com/tyyt53909-create/learning-center/blob/main/scripts/install.sh" target="_blank" rel="noopener noreferrer">安装脚本</a>
+        <a href="#system-loop">系统循环</a>
         <a href="#install">快速开始</a>
       </div>
     </div>
@@ -1233,24 +2422,33 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
 
   <script>
     (() => {
-      const heroCommands = {
-        curl: 'curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash',
-        git: 'git clone https://github.com/tyyt53909-create/learning-center.git && cd learning-center && npm ci && npm start',
-      };
-      const installCommands = {
-        one: 'curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash',
-        git: 'git clone https://github.com/tyyt53909-create/learning-center.git\ncd learning-center\nnpm ci\nnpm start',
-        ext: 'npm run build',
-      };
-      const stageUrls = {
-        home: 'http://127.0.0.1:3000/',
-        reader: 'http://127.0.0.1:3000/reader/transformer-notes',
-        studio: 'http://127.0.0.1:3000/ask',
-        review: 'http://127.0.0.1:3000/review',
-      };
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      let activeHero = 'curl';
-      let activeInst = 'one';
+      /* ---------------------------------------------------------------
+         1. Theme Toggle
+         --------------------------------------------------------------- */
+      const themeBtn = document.getElementById('theme-toggle');
+      const storedTheme = (() => { try { return localStorage.getItem('lc-landing-theme'); } catch { return null; } })();
+      if (storedTheme === 'dark') document.documentElement.dataset.theme = 'dark';
+      themeBtn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        if (next === 'dark') document.documentElement.dataset.theme = 'dark';
+        else delete document.documentElement.dataset.theme;
+        try { localStorage.setItem('lc-landing-theme', next); } catch {}
+      });
+
+      /* ---------------------------------------------------------------
+         2. Toast + Clipboard Helper
+         --------------------------------------------------------------- */
+      const toast = document.getElementById('copy-toast');
+      const toastText = document.getElementById('copy-toast-text');
+      let toastTimer;
+      function showToast(msg) {
+        toastText.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+      }
 
       async function copyText(text, btn, defaultLabel) {
         try {
@@ -1265,12 +2463,190 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
         }
         btn.classList.add('copied');
         btn.textContent = '✓ 已复制';
+        showToast('命令已复制，可直接粘贴到终端运行');
         clearTimeout(btn._t);
         btn._t = setTimeout(() => {
           btn.classList.remove('copied');
           btn.textContent = defaultLabel;
         }, 2000);
       }
+
+      /* ---------------------------------------------------------------
+         3. Eyebrow Terminal Decode Micro-Animation
+         --------------------------------------------------------------- */
+      const eyebrowEl = document.getElementById('eyebrow-scramble');
+      if (eyebrowEl && !reducedMotion) {
+        const target = eyebrowEl.textContent;
+        const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·+-/';
+        let frame = 0;
+        const total = 26;
+        const runDecode = () => {
+          frame++;
+          const revealed = Math.floor((frame / total) * target.length);
+          eyebrowEl.textContent = target.split('').map((ch, idx) => {
+            if (ch === ' ' || idx < revealed) return ch;
+            return glyphs[(idx * 7 + frame * 3) % glyphs.length];
+          }).join('');
+          if (frame < total) requestAnimationFrame(runDecode);
+          else eyebrowEl.textContent = target;
+        };
+        requestAnimationFrame(runDecode);
+      }
+
+      /* ---------------------------------------------------------------
+         4. Hero Ambient Neural Knowledge Field (Interactive Canvas 2D)
+         --------------------------------------------------------------- */
+      const canvas = document.getElementById('hero-canvas');
+      if (canvas && !reducedMotion) {
+        const ctx = canvas.getContext('2d');
+        let cw = 0, ch = 0, dpr = 1;
+        const pointer = { x: -9999, y: -9999, active: false };
+        const nodeCount = 34;
+        const nodes = [];
+        const signals = [];
+
+        function resizeCanvas() {
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          cw = canvas.clientWidth;
+          ch = canvas.clientHeight;
+          canvas.width = Math.max(1, Math.floor(cw * dpr));
+          canvas.height = Math.max(1, Math.floor(ch * dpr));
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        for (let i = 0; i < nodeCount; i++) {
+          const angle = (i / nodeCount) * Math.PI * 2;
+          const ring = 0.22 + (i % 3) * 0.16;
+          nodes.push({
+            x: cw * (0.5 + Math.cos(angle) * ring * 1.15),
+            y: ch * (0.42 + Math.sin(angle) * ring * 0.85),
+            vx: (Math.random() - 0.5) * 0.28,
+            vy: (Math.random() - 0.5) * 0.24,
+            r: 1.8 + (i % 3) * 0.9,
+            phase: Math.random() * Math.PI * 2,
+          });
+        }
+
+        const heroEl = document.getElementById('hero-section');
+        heroEl.addEventListener('pointermove', (e) => {
+          const rect = canvas.getBoundingClientRect();
+          pointer.x = e.clientX - rect.left;
+          pointer.y = e.clientY - rect.top;
+          pointer.active = true;
+        });
+        heroEl.addEventListener('pointerleave', () => { pointer.active = false; });
+
+        let heroVisible = true;
+        new IntersectionObserver((entries) => { heroVisible = entries[0]?.isIntersecting ?? true; }).observe(heroEl);
+
+        function spawnSignal(a, b) {
+          if (signals.length > 14) return;
+          signals.push({ a, b, t: 0, speed: 0.012 + Math.random() * 0.01 });
+        }
+
+        let tick = 0;
+        function drawHeroField() {
+          requestAnimationFrame(drawHeroField);
+          if (!heroVisible || !cw) return;
+          tick++;
+          ctx.clearRect(0, 0, cw, ch);
+          const dark = document.documentElement.dataset.theme === 'dark';
+          const lineRgb = dark ? '255,255,255' : '13,13,13';
+
+          for (const n of nodes) {
+            n.x += n.vx + Math.sin(tick * 0.008 + n.phase) * 0.08;
+            n.y += n.vy + Math.cos(tick * 0.007 + n.phase) * 0.06;
+            if (pointer.active) {
+              const dx = pointer.x - n.x;
+              const dy = pointer.y - n.y;
+              const dist = Math.hypot(dx, dy);
+              if (dist > 24 && dist < 190) {
+                n.x += (dx / dist) * 0.45;
+                n.y += (dy / dist) * 0.45;
+              }
+            }
+            if (n.x < 24 || n.x > cw - 24) n.vx *= -1;
+            if (n.y < 24 || n.y > ch - 40) n.vy *= -1;
+          }
+
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const a = nodes[i], b = nodes[j];
+              const d = Math.hypot(a.x - b.x, a.y - b.y);
+              if (d < 165) {
+                const alpha = (1 - d / 165) * (dark ? 0.14 : 0.08);
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.strokeStyle = `rgba(${lineRgb}, ${alpha.toFixed(3)})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                if (tick % 48 === 0 && Math.random() < 0.03) spawnSignal(a, b);
+              }
+            }
+          }
+
+          for (let i = signals.length - 1; i >= 0; i--) {
+            const s = signals[i];
+            s.t += s.speed;
+            if (s.t >= 1) { signals.splice(i, 1); continue; }
+            const sx = s.a.x + (s.b.x - s.a.x) * s.t;
+            const sy = s.a.y + (s.b.y - s.a.y) * s.t;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2.4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(16, 163, 127, 0.85)';
+            ctx.fill();
+          }
+
+          for (const n of nodes) {
+            const near = pointer.active && Math.hypot(pointer.x - n.x, pointer.y - n.y) < 160;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, near ? n.r + 1.1 : n.r, 0, Math.PI * 2);
+            ctx.fillStyle = near ? 'rgba(16, 163, 127, 0.72)' : `rgba(${lineRgb}, ${dark ? 0.22 : 0.14})`;
+            ctx.fill();
+          }
+        }
+        requestAnimationFrame(drawHeroField);
+      }
+
+      /* ---------------------------------------------------------------
+         5. Magnetic CTA Buttons + Bento Cursor Spotlight
+         --------------------------------------------------------------- */
+      if (!reducedMotion) {
+        document.querySelectorAll('.magnetic').forEach((btn) => {
+          btn.addEventListener('pointermove', (e) => {
+            const r = btn.getBoundingClientRect();
+            const x = ((e.clientX - r.left) / r.width - 0.5) * 10;
+            const y = ((e.clientY - r.top) / r.height - 0.5) * 8;
+            btn.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+          });
+          btn.addEventListener('pointerleave', () => { btn.style.transform = ''; });
+        });
+      }
+      document.querySelectorAll('.spotlight-card').forEach((card) => {
+        card.addEventListener('pointermove', (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+          card.style.setProperty('--my', `${e.clientY - r.top}px`);
+        });
+      });
+
+      /* ---------------------------------------------------------------
+         6. Hero Commands + Install Tabs
+         --------------------------------------------------------------- */
+      const heroCommands = {
+        curl: 'curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash',
+        git: 'git clone https://github.com/tyyt53909-create/learning-center.git && cd learning-center && npm ci && npm start',
+      };
+      const installCommands = {
+        one: 'curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash',
+        git: 'git clone https://github.com/tyyt53909-create/learning-center.git\ncd learning-center\nnpm ci\nnpm start',
+        ext: 'npm run build',
+      };
+      let activeHero = 'curl';
+      let activeInst = 'one';
 
       document.querySelectorAll('[data-hero-cmd]').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -1279,19 +2655,7 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
           document.getElementById('hero-cmd-text').textContent = heroCommands[activeHero];
         });
       });
-
-      document.getElementById('hero-copy').addEventListener('click', (e) => {
-        copyText(heroCommands[activeHero], e.currentTarget, '复制命令');
-      });
-
-      document.querySelectorAll('[data-stage]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const key = btn.dataset.stage;
-          document.querySelectorAll('[data-stage]').forEach((b) => b.classList.toggle('active', b === btn));
-          document.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('active', p.dataset.pane === key));
-          document.getElementById('stage-url').textContent = stageUrls[key];
-        });
-      });
+      document.getElementById('hero-copy').addEventListener('click', (e) => copyText(heroCommands[activeHero], e.currentTarget, '复制命令'));
 
       document.querySelectorAll('[data-inst-tab]').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -1300,24 +2664,321 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
           document.querySelectorAll('[data-inst-panel]').forEach((p) => p.classList.toggle('active', p.dataset.instPanel === activeInst));
         });
       });
+      document.getElementById('inst-copy').addEventListener('click', (e) => copyText(installCommands[activeInst], e.currentTarget, '复制代码'));
+      document.getElementById('bottom-copy').addEventListener('click', (e) => copyText(heroCommands.curl, e.currentTarget, '复制终端一键安装命令'));
 
-      document.getElementById('inst-copy').addEventListener('click', (e) => {
-        copyText(installCommands[activeInst], e.currentTarget, '复制代码');
+      /* ---------------------------------------------------------------
+         7. 3D Scroll-Driven Stage + Auto-Cycling Screenshot Loop
+         --------------------------------------------------------------- */
+      const stageKeys = ['home', 'reader', 'studio', 'review'];
+      const stageUrls = {
+        home: 'http://127.0.0.1:3000/',
+        reader: 'http://127.0.0.1:3000/reader/transformer-notes',
+        studio: 'http://127.0.0.1:3000/ask',
+        review: 'http://127.0.0.1:3000/review',
+      };
+      const stageWrap = document.getElementById('stage-wrap');
+      const stageFrame = document.getElementById('stage-frame');
+      const autoplayBtn = document.getElementById('stage-autoplay-btn');
+      let stageIdx = 0;
+      let stagePlaying = !reducedMotion;
+      let stageTimer;
+
+      function setStage(idx) {
+        stageIdx = (idx + stageKeys.length) % stageKeys.length;
+        const key = stageKeys[stageIdx];
+        document.querySelectorAll('[data-stage]').forEach((b) => {
+          const on = b.dataset.stage === key;
+          b.classList.toggle('active', on);
+          if (on) {
+            const prog = b.querySelector('.tab-progress');
+            if (prog) { prog.style.animation = 'none'; void prog.offsetWidth; prog.style.animation = ''; }
+          }
+        });
+        document.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('active', p.dataset.pane === key));
+        document.getElementById('stage-url').textContent = stageUrls[key];
+      }
+
+      function resetStageTimer() {
+        clearInterval(stageTimer);
+        if (stagePlaying) stageTimer = setInterval(() => setStage(stageIdx + 1), 5600);
+      }
+      resetStageTimer();
+
+      document.querySelectorAll('[data-stage]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setStage(stageKeys.indexOf(btn.dataset.stage));
+          resetStageTimer();
+        });
+      });
+      autoplayBtn.addEventListener('click', () => {
+        stagePlaying = !stagePlaying;
+        stageWrap.classList.toggle('paused', !stagePlaying);
+        autoplayBtn.setAttribute('aria-pressed', String(stagePlaying));
+        autoplayBtn.textContent = stagePlaying ? '⏸ 自动轮播' : '▶ 继续轮播';
+        resetStageTimer();
+      });
+      stageFrame.addEventListener('pointerenter', () => { if (stagePlaying) { stageWrap.classList.add('paused'); clearInterval(stageTimer); } });
+      stageFrame.addEventListener('pointerleave', () => {
+        stageFrame.style.setProperty('--tilt-y', '0deg');
+        if (stagePlaying) { stageWrap.classList.remove('paused'); resetStageTimer(); }
+      });
+      if (!reducedMotion) {
+        stageFrame.addEventListener('pointermove', (e) => {
+          const r = stageFrame.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          stageFrame.style.setProperty('--gx', `${(px * 100).toFixed(1)}%`);
+          stageFrame.style.setProperty('--gy', `${(py * 100).toFixed(1)}%`);
+          stageFrame.style.setProperty('--tilt-y', `${((px - 0.5) * 3.2).toFixed(2)}deg`);
+        });
+      }
+
+      /* ---------------------------------------------------------------
+         8. Scroll Choreography: Progress Rail, 3D Stage Flattening,
+            Workflow Energy Spine, Nav Highlight & Loop HUD
+         --------------------------------------------------------------- */
+      const scrollBar = document.getElementById('scroll-bar');
+      const topbar = document.getElementById('topbar');
+      const loopHud = document.getElementById('loop-hud');
+      const hudCode = document.getElementById('hud-phase-code');
+      const hudName = document.getElementById('hud-phase-name');
+      const wfWrap = document.getElementById('workflow-wrap');
+      const wfFill = document.getElementById('workflow-spine-fill');
+      const wfRows = [...document.querySelectorAll('.workflow-row')];
+      const navLinks = [...document.querySelectorAll('.nav-links a')];
+      const sectionIds = ['surfaces', 'workflow', 'system-loop', 'usecases', 'install', 'faq'];
+
+      const hudPhases = [
+        { min: 0, code: 'LOOP · 01/05', name: '剪藏入库 · 多源采集' },
+        { min: 0.22, code: 'LOOP · 02/05', name: '向量索引 · 智能归圈' },
+        { min: 0.42, code: 'LOOP · 03/05', name: 'AI 智能分析 · 伴读' },
+        { min: 0.62, code: 'LOOP · 04/05', name: '闭环演化 · 系统联动' },
+        { min: 0.80, code: 'LOOP · 05/05', name: '本地部署 · 永动循环' },
+      ];
+
+      function onScroll() {
+        const y = window.scrollY;
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const pct = Math.min(1, Math.max(0, y / maxScroll));
+        scrollBar.style.width = `${(pct * 100).toFixed(2)}%`;
+        topbar.classList.toggle('scrolled', y > 24);
+        loopHud.classList.toggle('visible', y > 380);
+
+        let curPhase = hudPhases[0];
+        for (const p of hudPhases) if (pct >= p.min) curPhase = p;
+        hudCode.textContent = curPhase.code;
+        hudName.textContent = curPhase.name;
+
+        // 3D Stage Scroll-Linked Perspective Flatten
+        if (!reducedMotion && stageFrame) {
+          const rect = stageFrame.getBoundingClientRect();
+          const vh = window.innerHeight;
+          const norm = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.72)));
+          const tiltX = (1 - norm) * 7.5;
+          const scale = 0.96 + norm * 0.04;
+          stageFrame.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+          stageFrame.style.setProperty('--stage-scale', scale.toFixed(4));
+        }
+
+        // Workflow Vertical Conduit Fill
+        if (wfWrap && wfFill) {
+          const r = wfWrap.getBoundingClientRect();
+          const vh = window.innerHeight;
+          const p = Math.min(1, Math.max(0, (vh * 0.62 - r.top) / Math.max(1, r.height)));
+          wfFill.style.height = `${(p * 100).toFixed(1)}%`;
+          wfRows.forEach((row) => {
+            const rr = row.getBoundingClientRect();
+            row.classList.toggle('active-step', rr.top < vh * 0.62);
+          });
+        }
+
+        // Active Nav Link
+        let activeSec = '';
+        for (const id of sectionIds) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top <= 140) activeSec = id;
+        }
+        navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${activeSec}`));
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      /* Intersection Observer for Staggered Section Reveals */
+      const revObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            revObserver.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('[data-reveal]').forEach((el) => revObserver.observe(el));
+
+      /* ---------------------------------------------------------------
+         9. CLOSED-LOOP KNOWLEDGE METABOLISM VISUALIZER (60fps Orbital Engine)
+         --------------------------------------------------------------- */
+      const loopStages = [
+        {
+          kicker: 'STAGE 01 / CAPTURE & INGEST',
+          title: '多源剪藏与原文锚点切片',
+          desc: '通过 Chrome 插件（⌘⇧S）、免安装书签或拖入本地文件，将网页、YouTube 字幕、PDF 与图片收入本机。后台自动切分带行号与时间戳的 content_anchors。',
+          route: 'POST /api/items/url · /upload',
+          table: '→ learning_items + content_anchors',
+          payload: '<span class="k">input:</span> 网页正文 / YouTube 字幕 / PDF / 图片<br><span class="k">output:</span> 可溯源锚点切片 + 原文件本地归档',
+          next: '01 剪藏入库 → 02 索引归圈',
+          banner: 'SYSTEM LOOP ACTIVE · 01 剪藏入库 → 02 索引归圈',
+        },
+        {
+          kicker: 'STAGE 02 / INDEX & CLASSIFY',
+          title: '向量嵌入与智能圈子分类',
+          desc: '后台 Worker 将所有锚点写入 PGlite 与 pgvector 向量空间，同时结合关键词、来源域名、AI 推荐与质心相似度自动归入你的主题圈子。',
+          route: 'WORKER embed + smart-classify',
+          table: '→ pgvector + circle_items',
+          payload: '<span class="k">index:</span> 语义向量 + 关键词双路混合检索<br><span class="k">classify:</span> 自动匹配多维主题圈子与相关资料',
+          next: '02 索引归圈 → 03 AI 分析',
+          banner: 'SYSTEM LOOP ACTIVE · 02 索引归圈 → 03 AI 分析',
+        },
+        {
+          kicker: 'STAGE 03 / DISTILL & ANALYZE',
+          title: '全类型 AI 智能分析与逐字校验',
+          desc: '自动提炼「主要讲了什么 · 3 句核心摘要」与 3–8 个编号重点；每条引用都经过原文逐字子串校验，无字幕视频与图片也能智能兜底分析。',
+          route: 'WORKER distill · POST /retry',
+          table: '→ ai_distillations',
+          payload: '<span class="k">verify:</span> source.text.includes(quote) 零幻觉引用<br><span class="k">modes:</span> 原文精析 / 视觉读图 / 元数据+联网辅助',
+          next: '03 AI 分析 → 04 伴读画布',
+          banner: 'SYSTEM LOOP ACTIVE · 03 AI 分析 → 04 伴读画布',
+        },
+        {
+          kicker: 'STAGE 04 / COMPANION & STUDIO',
+          title: '右侧伴读、互动测验与代码画布',
+          desc: '阅读时按 ⌘. 展开右侧 AI 伴读侧栏追问本篇细节，或切换互动选择题与安全沙箱代码画布验证原理；高价值回答一键「记入本篇笔记」或「存为笔记」。',
+          route: 'POST /api/ai/ask (chat | quiz | canvas)',
+          table: '→ ai_messages + item_notes',
+          payload: '<span class="k">actions:</span> 引用原地跳转 · 联网补充 · 错题一键转卡<br><span class="k">feedback:</span> 对话与联网网页可一键回存入库',
+          next: '04 伴读画布 → 05 间隔复习',
+          banner: 'SYSTEM LOOP ACTIVE · 04 伴读画布 → 05 间隔复习',
+        },
+        {
+          kicker: 'STAGE 05 / MASTER & RE-IGNITE LOOP',
+          title: 'SM-2 间隔复习 → 反哺下一轮探索',
+          desc: '把 AI 要点、个人笔记与测验错题转为闪卡，按 SM-2 遗忘曲线每日巩固；复习中暴露的知识盲区与延伸问题直接触发新一轮检索与收藏，形成正向永动闭环。',
+          route: 'POST /api/review/cards/:id/grade',
+          table: '→ review_cards ↻ 新一轮收藏',
+          payload: '<span class="k">schedule:</span> Space 翻面 · 1–4 评分动态计算下次复习<br><span class="k">loop_back:</span> 盲区回跳原文 → 联网新发现 → 重新入库',
+          next: '05 间隔复习 ↻ 回流至 01 剪藏入库（闭环完成）',
+          banner: 'SYSTEM LOOP CLOSED · 05 间隔复习 ↻ 01 剪藏入库',
+        },
+      ];
+
+      let activeLoop = 0;
+      let loopAutoTimer;
+      const arcPaths = [0, 1, 2, 3, 4].map((i) => document.getElementById(`arc-${i}`));
+      const arcLits = [0, 1, 2, 3, 4].map((i) => document.getElementById(`arc-lit-${i}`));
+      const spokes = [0, 1, 2, 3, 4].map((i) => document.getElementById(`spoke-${i}`));
+      const particleLayer = document.getElementById('loop-particles');
+      const loopNodes = document.querySelectorAll('.loop-node-g');
+      const loopPills = document.querySelectorAll('.loop-step-pill');
+      const detailBox = document.getElementById('loop-detail-box');
+
+      function setLoopStage(index) {
+        activeLoop = ((index % 5) + 5) % 5;
+        const st = loopStages[activeLoop];
+        loopNodes.forEach((g) => g.classList.toggle('active', Number(g.dataset.loopNode) === activeLoop));
+        loopPills.forEach((p) => p.classList.toggle('active', Number(p.dataset.loopNode) === activeLoop));
+        arcLits.forEach((el, i) => el.classList.toggle('lit', i === activeLoop));
+        spokes.forEach((el, i) => el.classList.toggle('lit', i === activeLoop || i === (activeLoop + 1) % 5));
+
+        document.getElementById('loop-live-banner').textContent = st.banner;
+        document.getElementById('ld-kicker').textContent = st.kicker;
+        document.getElementById('ld-title').textContent = st.title;
+        document.getElementById('ld-desc').textContent = st.desc;
+        document.getElementById('ld-route').textContent = st.route;
+        document.getElementById('ld-table').textContent = st.table;
+        document.getElementById('ld-payload').innerHTML = st.payload;
+        document.getElementById('ld-next').textContent = st.next;
+        detailBox.style.animation = 'none';
+        void detailBox.offsetWidth;
+        detailBox.style.animation = '';
+      }
+
+      function startLoopCycle() {
+        clearInterval(loopAutoTimer);
+        if (!reducedMotion) loopAutoTimer = setInterval(() => setLoopStage(activeLoop + 1), 4200);
+      }
+      startLoopCycle();
+
+      document.querySelectorAll('[data-loop-node]').forEach((el) => {
+        el.addEventListener('click', () => {
+          setLoopStage(Number(el.dataset.loopNode));
+          startLoopCycle();
+        });
       });
 
-      document.getElementById('bottom-copy').addEventListener('click', (e) => {
-        copyText(heroCommands.curl, e.currentTarget, '复制终端一键安装命令');
-      });
+      // Continuous SVG Orbital Particles + Interactive Full-Loop Wave Injection
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const loopParticles = [];
+      function createParticle(arcIdx, speed, r, bright = false) {
+        const dot = document.createElementNS(svgNS, 'circle');
+        dot.setAttribute('r', String(r));
+        dot.setAttribute('fill', bright ? '#ffffff' : '#34d399');
+        dot.setAttribute('filter', 'url(#glowDot)');
+        particleLayer.appendChild(dot);
+        loopParticles.push({ dot, arcIdx, t: 0, speed, bright, alive: true, singlePass: bright });
+      }
 
-      const themeBtn = document.getElementById('theme-toggle');
-      const storedTheme = (() => { try { return localStorage.getItem('lc-landing-theme'); } catch { return null; } })();
-      if (storedTheme === 'dark') document.documentElement.dataset.theme = 'dark';
-      themeBtn.addEventListener('click', () => {
-        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-        if (next === 'dark') document.documentElement.dataset.theme = 'dark';
-        else delete document.documentElement.dataset.theme;
-        try { localStorage.setItem('lc-landing-theme', next); } catch {}
-      });
+      if (!reducedMotion && particleLayer) {
+        for (let i = 0; i < 5; i++) {
+          createParticle(i, 0.0042, 3.2, false);
+        }
+
+        const injectBtn = document.getElementById('inject-pulse-btn');
+        injectBtn.addEventListener('click', () => {
+          setLoopStage(0);
+          startLoopCycle();
+          // Launch a bright cascading wave around ALL 5 segments sequentially
+          for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+              setLoopStage(i);
+              createParticle(i, 0.019, 5, true);
+              createParticle(i, 0.015, 3.5, true);
+            }, i * 520);
+          }
+          setTimeout(() => setLoopStage(0), 5 * 520 + 200);
+          showToast('已投入新资料脉冲：剪藏 → 索引 → 分析 → 伴读 → 复习 ↻ 闭环完成');
+        });
+
+        let loopVisible = true;
+        new IntersectionObserver((entries) => { loopVisible = entries[0]?.isIntersecting ?? true; }).observe(document.getElementById('system-loop'));
+
+        function animateLoopParticles() {
+          requestAnimationFrame(animateLoopParticles);
+          if (!loopVisible) return;
+          for (let i = loopParticles.length - 1; i >= 0; i--) {
+            const p = loopParticles[i];
+            const path = arcPaths[p.arcIdx];
+            if (!path) continue;
+            const boost = p.arcIdx === activeLoop ? 1.65 : 1;
+            p.t += p.speed * boost;
+            if (p.t >= 1) {
+              if (p.singlePass) {
+                p.dot.remove();
+                loopParticles.splice(i, 1);
+                continue;
+              }
+              p.t = 0;
+              p.arcIdx = (p.arcIdx + 1) % 5;
+            }
+            const curPath = arcPaths[p.arcIdx];
+            const len = curPath.getTotalLength();
+            const pt = curPath.getPointAtLength(p.t * len);
+            p.dot.setAttribute('cx', pt.x.toFixed(1));
+            p.dot.setAttribute('cy', pt.y.toFixed(1));
+            p.dot.setAttribute('opacity', p.arcIdx === activeLoop || p.bright ? '1' : '0.45');
+          }
+        }
+        requestAnimationFrame(animateLoopParticles);
+      }
     })();
   </script>
 </body>

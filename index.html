@@ -379,7 +379,7 @@
       margin-bottom: 26px;
       opacity: 0;
       transform: translateY(10px);
-      animation: heroFadeUp 700ms var(--ease-spring) 60ms forwards;
+      animation: heroFadeUp 580ms var(--ease-spring) 0ms forwards;
     }
     .eyebrow i {
       width: 7px;
@@ -420,10 +420,10 @@
       transform: translateY(112%);
       opacity: 0;
       filter: blur(6px);
-      animation: lineReveal 880ms var(--ease-spring) forwards;
+      animation: lineReveal 720ms var(--ease-spring) forwards;
     }
-    .line-mask:nth-child(1) .line-inner { animation-delay: 120ms; }
-    .line-mask:nth-child(2) .line-inner { animation-delay: 240ms; }
+    .line-mask:nth-child(1) .line-inner { animation-delay: 60ms; }
+    .line-mask:nth-child(2) .line-inner { animation-delay: 140ms; }
     @keyframes lineReveal {
       to { transform: translateY(0); opacity: 1; filter: blur(0); }
     }
@@ -436,7 +436,7 @@
       margin: 0 auto 34px;
       opacity: 0;
       transform: translateY(14px);
-      animation: heroFadeUp 820ms var(--ease-spring) 360ms forwards;
+      animation: heroFadeUp 680ms var(--ease-spring) 210ms forwards;
     }
     .hero-actions {
       display: flex;
@@ -447,7 +447,7 @@
       margin-bottom: 30px;
       opacity: 0;
       transform: translateY(14px);
-      animation: heroFadeUp 820ms var(--ease-spring) 440ms forwards;
+      animation: heroFadeUp 680ms var(--ease-spring) 270ms forwards;
     }
     @keyframes heroFadeUp {
       to { opacity: 1; transform: translateY(0); }
@@ -466,7 +466,7 @@
       box-shadow: 0 22px 60px rgba(0, 0, 0, 0.14);
       opacity: 0;
       transform: translateY(18px);
-      animation: heroFadeUp 860ms var(--ease-spring) 520ms forwards;
+      animation: heroFadeUp 720ms var(--ease-spring) 330ms forwards;
       transition: border-color 240ms var(--ease), box-shadow 240ms var(--ease);
     }
     .quick-cmd:hover {
@@ -557,7 +557,7 @@
       margin: 0 auto;
       opacity: 0;
       transform: translateY(20px);
-      animation: heroFadeUp 960ms var(--ease-spring) 620ms forwards;
+      animation: heroFadeUp 780ms var(--ease-spring) 390ms forwards;
     }
     .stage-controls {
       display: flex;
@@ -2812,7 +2812,18 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
 
-      /* Intersection Observer for Staggered Section Reveals */
+      /* Intersection Observer + Scroll Sync for Staggered Section Reveals */
+      const revealEls = [...document.querySelectorAll('[data-reveal]')];
+      function revealInViewport() {
+        const thresholdY = window.innerHeight - 16;
+        for (const el of revealEls) {
+          if (el.classList.contains('in')) continue;
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= thresholdY) {
+            el.classList.add('in');
+          }
+        }
+      }
       const revObserver = new IntersectionObserver((entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
@@ -2820,8 +2831,11 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
             revObserver.unobserve(entry.target);
           }
         }
-      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-      document.querySelectorAll('[data-reveal]').forEach((el) => revObserver.observe(el));
+      }, { threshold: 0.02, rootMargin: '0px 0px -16px 0px' });
+      revealEls.forEach((el) => revObserver.observe(el));
+      window.addEventListener('scroll', revealInViewport, { passive: true });
+      window.addEventListener('hashchange', () => setTimeout(revealInViewport, 60));
+      revealInViewport();
 
       /* ---------------------------------------------------------------
          9. CLOSED-LOOP KNOWLEDGE METABOLISM VISUALIZER (60fps Orbital Engine)

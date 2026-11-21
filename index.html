@@ -544,13 +544,19 @@
     }
 
     /* 3D Perspective Scroll-Driven Product Showcase Stage */
-    .stage-wrap {
-      width: min(1240px, calc(100vw - 32px));
+    .stage-container {
+      width: 100%;
+      max-width: 1288px;
       margin: 0 auto;
+      padding-inline: 24px;
       position: relative;
-      left: 50%;
-      transform: translateX(-50%);
+      z-index: 2;
+    }
+    .stage-wrap {
+      width: 100%;
+      margin: 0 auto;
       opacity: 0;
+      transform: translateY(20px);
       animation: heroFadeUp 960ms var(--ease-spring) 620ms forwards;
     }
     .stage-controls {
@@ -1831,8 +1837,10 @@
             <span><code id="hero-cmd-text">curl -fsSL https://raw.githubusercontent.com/tyyt53909-create/learning-center/main/scripts/install.sh | bash</code><span class="cmd-cursor" aria-hidden="true"></span></span>
           </div>
         </div>
+      </div>
 
-        <!-- 3D Scroll-Driven Real Product Stage with Auto-Cycling Loop -->
+      <!-- 3D Scroll-Driven Real Product Stage with Auto-Cycling Loop -->
+      <div class="stage-container">
         <div class="stage-wrap" id="stage-wrap">
           <div class="stage-controls">
             <div class="stage-switcher" role="tablist" aria-label="产品界面实景截图">

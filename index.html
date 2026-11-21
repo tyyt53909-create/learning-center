@@ -279,358 +279,209 @@
     }
     .prompt-sign { color: #34d399; user-select: none; }
 
-    /* Interactive Hero Stage */
+    /* Interactive Hero Stage — Wide Real Product Showcase */
     .stage-wrap {
-      max-width: 1040px;
+      width: min(1240px, calc(100vw - 32px));
       margin: 0 auto;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
     }
     .stage-switcher {
       display: inline-flex;
       gap: 4px;
-      padding: 4px;
+      padding: 5px;
       border-radius: var(--radius-pill);
       background: var(--bg-subtle);
       border: 1px solid var(--border);
-      margin-bottom: 18px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
       justify-content: center;
     }
     .stage-tab {
-      padding: 7px 16px;
+      padding: 8px 18px;
       border-radius: var(--radius-pill);
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 500;
       color: var(--muted);
       transition: background 160ms var(--ease), color 160ms var(--ease), box-shadow 160ms var(--ease);
     }
+    .stage-tab:hover { color: var(--fg); }
     .stage-tab.active {
       background: var(--bg);
       color: var(--fg);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
     .window-frame {
-      border-radius: var(--radius-lg);
+      border-radius: 22px;
       background: var(--ink-bg);
-      border: 1px solid var(--ink-border);
+      border: 1px solid var(--border-strong);
       overflow: hidden;
       text-align: left;
-      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.16);
+      box-shadow: 0 32px 96px rgba(0, 0, 0, 0.16), 0 6px 24px rgba(0, 0, 0, 0.06);
       color: var(--ink-fg);
     }
     .window-bar {
-      height: 42px;
-      padding: 0 16px;
+      height: 44px;
+      padding: 0 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--ink-border);
-      background: rgba(255, 255, 255, 0.02);
+      background: #141418;
     }
     .traffic {
       display: flex;
       gap: 7px;
     }
     .traffic span {
-      width: 10px;
-      height: 10px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.18);
     }
     .window-url {
       font: 12px/1 var(--font-mono);
       color: var(--ink-muted);
-      padding: 5px 14px;
+      padding: 5px 16px;
       border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       max-width: 66%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .window-pane { display: none; }
-    .window-pane.active { display: grid; }
-
-    /* Mockup 1: Reader + AI Companion Split */
-    .mock-reader {
-      grid-template-columns: 180px minmax(0, 1fr) 310px;
-      min-height: 430px;
+    .window-pane {
+      display: none;
+      background: #f5f5f7;
     }
-    .mock-side {
-      border-right: 1px solid var(--ink-border);
-      padding: 18px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 12.5px;
-      color: var(--ink-muted);
-    }
-    .mock-side-item {
-      padding: 7px 10px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .mock-side-item.on {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      font-weight: 500;
-    }
-    .mock-article {
-      padding: 26px 28px;
-      border-right: 1px solid var(--ink-border);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .mock-article-meta {
-      font: 11px var(--font-mono);
-      color: var(--ink-muted);
-      display: flex;
-      gap: 10px;
-    }
-    .mock-article h3 {
-      font-size: 20px;
-      line-height: 1.3;
-      letter-spacing: -0.02em;
-      color: #fff;
-    }
-    .mock-article p {
-      font-size: 13.5px;
-      line-height: 1.75;
-      color: #b7b7c2;
-    }
-    .mock-highlight {
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: rgba(16, 163, 127, 0.12);
-      border: 1px solid rgba(16, 163, 127, 0.35);
-      color: #e6fff7;
-      font-size: 13px;
-      line-height: 1.65;
-    }
-    .mock-dock {
-      background: #121216;
-      display: flex;
-      flex-direction: column;
-      padding: 14px;
-      gap: 12px;
-    }
-    .mock-dock-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .mock-badge-ok {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
-      background: rgba(16, 163, 127, 0.16);
-      color: #34d399;
-    }
-    .mock-seg {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      padding: 3px;
-      border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.06);
-      font-size: 11.5px;
-      text-align: center;
-      color: var(--ink-muted);
-    }
-    .mock-seg span { padding: 4px 0; border-radius: var(--radius-pill); }
-    .mock-seg span.on { background: rgba(255, 255, 255, 0.14); color: #fff; font-weight: 500; }
-    .mock-user-q {
-      align-self: flex-end;
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 12.5px;
-      padding: 8px 12px;
-      border-radius: 12px 12px 4px 12px;
-      max-width: 88%;
-    }
-    .mock-ai-a {
-      font-size: 12.5px;
-      line-height: 1.65;
-      color: #d2d2db;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .mock-cite {
-      font-size: 11.5px;
-      padding: 8px 10px;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(16, 163, 127, 0.3);
-      color: #6ee7b7;
-    }
-    .mock-input {
-      margin-top: auto;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--ink-border);
-      background: rgba(255, 255, 255, 0.04);
-      font-size: 12px;
-      color: var(--ink-muted);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .mock-send {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #fff;
-      color: #0d0d0f;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    /* Mockup 2: Interactive Studio & Canvas */
-    .mock-studio {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-      min-height: 430px;
-    }
-    .mock-chat-col {
-      padding: 24px;
-      border-right: 1px solid var(--ink-border);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .mock-quiz-box {
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid var(--ink-border);
-      background: rgba(255, 255, 255, 0.03);
-      display: grid;
-      gap: 8px;
-    }
-    .mock-quiz-opt {
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 12.5px;
-      color: #d2d2db;
-    }
-    .mock-quiz-opt.ok {
-      border-color: rgba(52, 211, 153, 0.55);
-      background: rgba(16, 163, 127, 0.15);
-      color: #ecfdf5;
-    }
-    .mock-canvas-col {
-      padding: 24px;
-      background: #121216;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .mock-code {
-      padding: 14px;
-      border-radius: 10px;
-      background: #0a0a0d;
-      border: 1px solid var(--ink-border);
-      font: 12px/1.65 var(--font-mono);
-      color: #b7c2d6;
-      overflow-x: auto;
-    }
-    .mock-preview-card {
-      padding: 16px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      border: 1px solid var(--ink-border);
-      display: grid;
-      gap: 10px;
-    }
-    .mock-bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      height: 74px;
-    }
-    .mock-bars i {
-      flex: 1;
-      border-radius: 5px 5px 2px 2px;
-      background: rgba(52, 211, 153, 0.72);
+    .window-pane.active {
       display: block;
+      animation: paneFade 220ms var(--ease);
     }
-
-    /* Mockup 3: AI Analysis & Review */
-    .mock-analysis {
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-      min-height: 430px;
+    @keyframes paneFade {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
     }
-    .mock-analysis-left {
-      padding: 26px;
-      border-right: 1px solid var(--ink-border);
-      display: grid;
-      gap: 14px;
-      align-content: start;
+    .stage-shot {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      object-position: top center;
     }
-    .mock-kp {
-      padding: 12px 14px;
-      border-radius: 11px;
-      border: 1px solid var(--ink-border);
-      background: rgba(255, 255, 255, 0.03);
-      display: grid;
-      gap: 5px;
-    }
-    .mock-kp-head {
+    .stage-caption {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 14px 22px;
+      background: #141418;
+      border-top: 1px solid var(--ink-border);
+      font-size: 13.5px;
+      color: #d2d2db;
     }
-    .mock-kp-num {
-      font: 600 11px var(--font-mono);
-      color: #34d399;
+    .stage-caption strong {
+      color: #ffffff;
+      font-weight: 600;
       margin-right: 8px;
     }
-    .mock-kp p {
-      font-size: 12.5px;
-      color: #a7a7b3;
-      line-height: 1.6;
+    .stage-caption-tags {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .mock-review-right {
-      padding: 26px;
-      background: #121216;
+    .stage-caption-tags span {
+      font: 500 11.5px/1 var(--font-mono);
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.07);
+      color: #b7b7c2;
+    }
+
+    /* Use Cases Grid */
+    .usecase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .usecase-card {
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--bg);
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 14px;
-    }
-    .mock-flashcard {
-      padding: 22px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: #191920;
-      display: grid;
       gap: 12px;
     }
-    .mock-grades {
+    .usecase-role {
+      font: 500 11.5px/1 var(--font-mono);
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .usecase-card h3 {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .usecase-card p {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .usecase-list {
+      margin: 6px 0 0;
+      padding: 14px 0 0 18px;
+      border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 7px;
+      font-size: 13.5px;
+      color: var(--fg-2);
     }
-    .mock-grades span {
-      padding: 7px 0;
-      border-radius: 8px;
-      border: 1px solid var(--ink-border);
-      text-align: center;
-      font-size: 11.5px;
-      color: #d2d2db;
+
+    /* FAQ Accordion */
+    .faq-list {
+      display: grid;
+      gap: 10px;
+      max-width: 820px;
     }
-    .mock-grades span.good {
-      background: rgba(16, 163, 127, 0.2);
-      border-color: rgba(52, 211, 153, 0.5);
-      color: #6ee7b7;
+    .faq-item {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 18px 22px;
+    }
+    .faq-item[open] {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+    }
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font: 400 20px/1 var(--font-mono);
+      color: var(--muted);
+      flex: none;
+    }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-item p {
+      margin-top: 12px;
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.75;
     }
 
     /* Sections */
@@ -938,13 +789,9 @@
     /* Responsive */
     @media (max-width: 960px) {
       .nav-links { display: none; }
-      .mock-reader { grid-template-columns: 1fr; }
-      .mock-side { display: none; }
-      .mock-article { border-right: 0; border-bottom: 1px solid var(--ink-border); }
-      .mock-studio, .mock-analysis { grid-template-columns: 1fr; }
-      .mock-chat-col, .mock-analysis-left { border-right: 0; border-bottom: 1px solid var(--ink-border); }
       .bento-card, .bento-card.wide, .bento-card.narrow { grid-column: span 12; }
       .workflow-row { grid-template-columns: 1fr; gap: 14px; padding: 24px; }
+      .usecase-grid { grid-template-columns: 1fr; }
       .install-grid { grid-template-columns: 1fr; }
       .specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
@@ -971,8 +818,9 @@
       <nav class="nav-links" aria-label="主导航">
         <a href="#surfaces">核心能力</a>
         <a href="#workflow">学习闭环</a>
+        <a href="#usecases">适用场景</a>
         <a href="#install">终端安装</a>
-        <a href="#architecture">本地与隐私</a>
+        <a href="#faq">常见问题</a>
       </nav>
       <div class="nav-right">
         <button type="button" class="theme-btn" id="theme-toggle" aria-label="切换深浅色外观" title="切换外观">
@@ -1011,129 +859,51 @@
           </div>
         </div>
 
-        <!-- Interactive Product Stage -->
+        <!-- Interactive Product Stage (Real High-Res Screenshots) -->
         <div class="stage-wrap">
-          <div class="stage-switcher" role="tablist" aria-label="产品界面预览">
-            <button type="button" class="stage-tab active" data-stage="reader">阅读页 + AI 伴读侧栏</button>
-            <button type="button" class="stage-tab" data-stage="studio">互动测验 &amp; 交互代码画布</button>
-            <button type="button" class="stage-tab" data-stage="analysis">AI 智能分析 &amp; 间隔复习</button>
+          <div class="stage-switcher" role="tablist" aria-label="产品界面实景截图">
+            <button type="button" class="stage-tab active" data-stage="home">项目主页工作台</button>
+            <button type="button" class="stage-tab" data-stage="reader">阅读页 + AI 伴读侧栏</button>
+            <button type="button" class="stage-tab" data-stage="studio">AI 问答与交互代码画布</button>
+            <button type="button" class="stage-tab" data-stage="review">SM-2 间隔复习闪卡</button>
           </div>
 
           <div class="window-frame">
             <div class="window-bar">
               <div class="traffic"><span></span><span></span><span></span></div>
-              <div class="window-url" id="stage-url">http://127.0.0.1:3000/reader/attention-is-all-you-need</div>
+              <div class="window-url" id="stage-url">http://127.0.0.1:3000/</div>
               <div style="width:44px"></div>
             </div>
 
-            <!-- Pane 1: Reader + AI Side Panel -->
-            <div class="window-pane mock-reader active" data-pane="reader">
-              <div class="mock-side">
-                <div class="mock-side-item"><span>全部资料</span><span>24</span></div>
-                <div class="mock-side-item"><span>今日复习</span><span>6</span></div>
-                <div class="mock-side-item"><span>AI 问答</span><span>AI</span></div>
-                <div style="height:10px"></div>
-                <div style="font-size:11px;padding-left:10px;opacity:.6">我的圈子</div>
-                <div class="mock-side-item on"><span>AI 架构研究</span><span>11</span></div>
-                <div class="mock-side-item"><span>产品与设计</span><span>8</span></div>
-                <div class="mock-side-item"><span>视频精读</span><span>5</span></div>
-              </div>
-              <div class="mock-article">
-                <div class="mock-article-meta"><span>文章 · arxiv.org</span><span>·</span><span>已连接 AI 伴读</span></div>
-                <h3>深入理解自注意力机制与上下文路由</h3>
-                <p>传统的循环结构必须按时间步顺序传递隐藏状态，长距离依赖容易在梯度反向传播过程中迅速衰减。</p>
-                <div class="mock-highlight">「通过 Query、Key、Value 的点积相似度计算，模型可以在 O(1) 路径长度内直接建立任意两个位置之间的语义连接。」</div>
-                <p>多头注意力将表示空间拆分为多个独立子空间，使模型能够同时关注语法结构、实体指代与全局主题脉络。</p>
-              </div>
-              <div class="mock-dock">
-                <div class="mock-dock-top">
-                  <span>✦ AI 伴读</span>
-                  <span class="mock-badge-ok">已连接本篇</span>
-                </div>
-                <div class="mock-seg">
-                  <span class="on">对话</span><span>出题</span><span>画布</span>
-                </div>
-                <div class="mock-user-q">为什么它比 RNN 更擅长长文本？</div>
-                <div class="mock-ai-a">
-                  <div>核心在于把长距离信息传递的路径长度从 O(n) 降到了 <strong>O(1)</strong>，任意词元之间可以直接建立连接。</div>
-                  <div class="mock-cite">↗ 定位原文段落：“通过 Query、Key、Value 的点积相似度计算…”</div>
-                </div>
-                <div class="mock-input">
-                  <span>问 AI 关于这篇资料…</span>
-                  <span class="mock-send">↑</span>
-                </div>
+            <div class="window-pane active" data-pane="home">
+              <img class="stage-shot" src="./assets/screenshots/home.png" alt="学习中心主页工作台实景截图：侧边栏智能圈子分类、继续阅读卡片、学习概览与多格式资料库">
+              <div class="stage-caption">
+                <div><strong>项目主页工作台</strong>侧边栏智能圈子分组、继续阅读卡片、全局 ⌘K 混合搜索与多格式资料库一目了然。</div>
+                <div class="stage-caption-tags"><span>圈子分类</span><span>混合搜索 ⌘K</span><span>批量管理</span></div>
               </div>
             </div>
 
-            <!-- Pane 2: Studio Quiz + Code Canvas -->
-            <div class="window-pane mock-studio" data-pane="studio">
-              <div class="mock-chat-col">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:13px;font-weight:600">随堂互动测验 · 即时判分</span>
-                  <span class="mock-badge-ok">基于资料原文出题</span>
-                </div>
-                <div class="mock-quiz-box">
-                  <div style="font-size:13px;font-weight:600;color:#fff">Q1. 多头注意力拆分多个子空间的主要作用是什么？</div>
-                  <div class="mock-quiz-opt ok">A. 同时从不同表示子空间捕获语法、指代与全局语义 ✓</div>
-                  <div class="mock-quiz-opt">B. 减少全部参数量至单头的一半</div>
-                  <div class="mock-quiz-opt">C. 替代位置编码处理序列顺序</div>
-                  <div style="font-size:12px;color:#6ee7b7">解析：多头机制让模型并行关注多种关系。 · [错题一键转闪卡]</div>
-                </div>
-                <div class="mock-cite">🌐 联网检索已融合 3 个公网来源 · 支持一键收藏入库</div>
-              </div>
-              <div class="mock-canvas-col">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:13px;font-weight:600">&lt;/&gt; 交互代码画布（安全沙箱）</span>
-                  <span style="font:11px var(--font-mono);color:var(--ink-muted)">sandbox="allow-scripts"</span>
-                </div>
-                <pre class="mock-code">function softmax(scores, temp = 1.0) {
-  const max = Math.max(...scores);
-  const exps = scores.map(s =&gt; Math.exp((s - max) / temp));
-  const sum = exps.reduce((a, b) =&gt; a + b, 0);
-  return exps.map(v =&gt; +(v / sum).toFixed(3));
-}</pre>
-                <div class="mock-preview-card">
-                  <div style="display:flex;justify-content:space-between;font-size:12px;color:#d2d2db">
-                    <span>注意力权重分布实时预览</span>
-                    <span style="font-family:var(--font-mono);color:#34d399">Temperature = 0.7</span>
-                  </div>
-                  <div class="mock-bars">
-                    <i style="height:28%"></i><i style="height:86%"></i><i style="height:44%"></i><i style="height:64%"></i><i style="height:22%"></i><i style="height:52%"></i>
-                  </div>
-                </div>
+            <div class="window-pane" data-pane="reader">
+              <img class="stage-shot" src="./assets/screenshots/reader-ai.png" alt="阅读页与右侧停靠 AI 伴读侧栏实景截图：正文精读、带原文引用跳转的 AI 伴读与记入本篇笔记">
+              <div class="stage-caption">
+                <div><strong>阅读页 + AI 伴读侧栏</strong>按 ⌘. 在右侧分屏打开伴读，自动连接当前资料，点击引用直接定位高亮左侧原文段落。</div>
+                <div class="stage-caption-tags"><span>快捷键 ⌘.</span><span>已连接本篇</span><span>对话 / 出题 / 画布</span></div>
               </div>
             </div>
 
-            <!-- Pane 3: AI Analysis & Review -->
-            <div class="window-pane mock-analysis" data-pane="analysis">
-              <div class="mock-analysis-left">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:14px;font-weight:600">✦ AI 智能分析</span>
-                  <span class="mock-badge-ok">文章 / 视频 / PDF / 图片通用</span>
-                </div>
-                <div class="mock-kp">
-                  <div class="mock-kp-head"><span><span class="mock-kp-num">01</span>核心主旨与问题背景</span><span style="font-size:11px;color:#6ee7b7">已制卡 ✓</span></div>
-                  <p>提炼 3 句核心摘要，一眼掌握整篇资料或长视频讲了什么、核心论据与结论。</p>
-                </div>
-                <div class="mock-kp">
-                  <div class="mock-kp-head"><span><span class="mock-kp-num">02</span>逐字引用校验与时间戳回跳</span><span style="font-size:11px;color:var(--ink-muted)">+ 制卡</span></div>
-                  <p>所有观点均经过原文锚点逐字校验，点击引用直接定位左侧段落或视频精确秒数。</p>
-                </div>
-                <div class="mock-kp">
-                  <div class="mock-kp-head"><span><span class="mock-kp-num">03</span>无字幕视频与图片多模态兜底</span><span style="font-size:11px;color:var(--ink-muted)">+ 制卡</span></div>
-                  <p>无字幕视频自动结合元数据与联网辅助分析，图片支持多模态视觉读图提炼。</p>
-                </div>
+            <div class="window-pane" data-pane="studio">
+              <img class="stage-shot" src="./assets/screenshots/ask-studio.png" alt="AI 问答工坊与安全沙箱交互代码画布实景截图：分屏实时编辑与可视化预览">
+              <div class="stage-caption">
+                <div><strong>AI 问答与交互代码画布</strong>在安全沙箱内实时运行 HTML/CSS/JS 交互演示、支持在线改代码与即时互动测验。</div>
+                <div class="stage-caption-tags"><span>沙箱画布</span><span>互动选择题</span><span>实时联网</span></div>
               </div>
-              <div class="mock-review-right">
-                <div style="font:11.5px var(--font-mono);color:var(--ink-muted)">SM-2 SPACED REPETITION · 今日待复习 6 张</div>
-                <div class="mock-flashcard">
-                  <span style="font-size:11px;color:#34d399">主动回忆闪卡</span>
-                  <strong style="font-size:16px;line-height:1.45;color:#fff">为什么缩放点积注意力要除以 √d_k？</strong>
-                  <p style="font-size:13px;color:#b7b7c2;line-height:1.6">防止维度较大时点积数值过大，导致 Softmax 进入梯度接近 0 的饱和区。</p>
-                  <div class="mock-grades">
-                    <span>1 重来</span><span>2 困难</span><span class="good">3 良好</span><span>4 简单</span>
-                  </div>
-                </div>
+            </div>
+
+            <div class="window-pane" data-pane="review">
+              <img class="stage-shot" src="./assets/screenshots/review.png" alt="SM-2 间隔复习工作台实景截图：主动回忆闪卡与 1-4 快捷评分">
+              <div class="stage-caption">
+                <div><strong>SM-2 间隔复习工作台</strong>把 AI 核心要点、随堂错题与个人笔记转为闪卡，Space 翻面、1–4 评分巩固长期记忆。</div>
+                <div class="stage-caption-tags"><span>SM-2 算法</span><span>一键制卡</span><span>原文溯源</span></div>
               </div>
             </div>
           </div>
@@ -1248,6 +1018,49 @@
       </div>
     </section>
 
+    <!-- Use Cases Section -->
+    <section class="section" id="usecases">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">USE CASES</span>
+          <h2>为真实的学习与研究场景而生。</h2>
+          <p>无论你是在啃论文、看技术视频，还是沉淀跨领域案例灵感，学习中心都能让资料持续产生复利。</p>
+        </div>
+        <div class="usecase-grid">
+          <article class="usecase-card">
+            <span class="usecase-role">DEVELOPERS &amp; RESEARCHERS</span>
+            <h3>开发者与技术研究者</h3>
+            <p>集中收藏 arXiv 论文 PDF、框架文档、GitHub 讨论与 YouTube 技术讲座，随时跨资料对比架构权衡。</p>
+            <ul class="usecase-list">
+              <li>单篇伴读精准回跳公式段落与视频秒数</li>
+              <li>用沙箱代码画布把抽象算法做成可调参可视化</li>
+              <li>pgvector 语义 + 关键词混合搜索不错过代码标识</li>
+            </ul>
+          </article>
+          <article class="usecase-card">
+            <span class="usecase-role">LIFELONG LEARNERS &amp; STUDENTS</span>
+            <h3>深度学习者与备考学生</h3>
+            <p>告别“收藏即学会”的错觉，用主动测验与间隔重复把看过的内容真正内化为长期记忆。</p>
+            <ul class="usecase-list">
+              <li>每篇资料自动生成「主要讲了什么」与编号重点</li>
+              <li>AI 随堂出单选题即时判分，错题一键转闪卡</li>
+              <li>每日 SM-2 复习工作台按遗忘曲线自动排期</li>
+            </ul>
+          </article>
+          <article class="usecase-card">
+            <span class="usecase-role">PRODUCT &amp; CREATORS</span>
+            <h3>产品经理与内容创作者</h3>
+            <p>随时剪藏竞品分析、行业报告、长视频观点与截图，沉淀可复用、可导出的个人素材库。</p>
+            <ul class="usecase-list">
+              <li>Chrome 插件一键划词剪藏，按智能规则自动归圈</li>
+              <li>支持图片多模态视觉分析与联网事实交叉验证</li>
+              <li>随时一键导出带逐字引用的标准 Markdown 稿件</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <!-- Installation Section -->
     <section class="section" id="install">
       <div class="container">
@@ -1353,6 +1166,39 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
       </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">FAQ</span>
+          <h2>常见问题</h2>
+          <p>关于运行环境、模型配置、视频解析与隐私边界的简明解答。</p>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary>项目免费吗？必须用 OpenAI 才能运行吗？</summary>
+            <p>项目完全开源免费，本地运行无需任何订阅。AI 功能兼容所有 OpenAI 接口协议，你可以自由选择 <strong>OpenAI、DeepSeek、通义千问、硅基流动</strong> 或 <strong>本地 Ollama</strong>；不填 API Key 也能完整使用收藏、阅读、笔记、检索、手动闪卡复习以及内置的互动测验与代码画布示例。</p>
+          </details>
+          <details class="faq-item">
+            <summary>没有安装 PostgreSQL 或 Docker，能直接运行吗？</summary>
+            <p>完全可以。项目内置了嵌入式 PGlite（含 <code>pgvector</code> 向量扩展），只需本机有 <strong>Node.js 24.15+ 或 26+</strong>，运行安装命令后即可直接启动，无需单独安装或运维任何数据库服务。</p>
+          </details>
+          <details class="faq-item">
+            <summary>YouTube 视频没有字幕也能进行 AI 分析吗？</summary>
+            <p>可以。对于带字幕（含自动字幕）的 YouTube 视频，服务端免 <code>yt-dlp</code> 自动抓取带时间戳的完整字幕；对于源站未开启字幕的视频，系统会自动拉取标题、频道与简介并结合联网信息生成结构化辅助分析，同时也支持你在阅读页一键「粘贴字幕/文稿」升级为逐字时间戳精析。</p>
+          </details>
+          <details class="faq-item">
+            <summary>我的 API Key 和收藏的私人资料会被上传吗？</summary>
+            <p>不会。所有原文件、数据库记录、个人笔记与在界面中填写的 API Key 都仅保存在你本机目录的 <code>.data/</code> 中，且默认仅监听 <code>127.0.0.1</code>。除你主动向所配置的 AI 模型或联网搜索引擎发起的请求外，应用不会向任何第三方回传数据。</p>
+          </details>
+          <details class="faq-item">
+            <summary>后续版本如何升级？会覆盖我的本地数据吗？</summary>
+            <p>不会覆盖数据。因为 <code>.data/</code> 已在 <code>.gitignore</code> 中隔离，后续只需在安装目录重新运行 <code>git pull &amp;&amp; npm ci &amp;&amp; npm start</code>（或再次运行一键安装脚本）即可平滑升级，原有资料、笔记与复习进度全部保留。</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
     <!-- Bottom CTA -->
     <section class="cta-section">
       <div class="container">
@@ -1397,9 +1243,10 @@ npm run build   <span class="code-comment"># 仅重新生成 dist/extension</spa
         ext: 'npm run build',
       };
       const stageUrls = {
-        reader: 'http://127.0.0.1:3000/reader/attention-is-all-you-need',
+        home: 'http://127.0.0.1:3000/',
+        reader: 'http://127.0.0.1:3000/reader/transformer-notes',
         studio: 'http://127.0.0.1:3000/ask',
-        analysis: 'http://127.0.0.1:3000/review',
+        review: 'http://127.0.0.1:3000/review',
       };
 
       let activeHero = 'curl';

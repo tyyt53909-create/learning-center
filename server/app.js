@@ -1488,6 +1488,7 @@ export async function createApplication({ dataDir, databaseUrl, token, ai = {}, 
     res.sendStatus(204);
   });
   app.use('/api', (_req, res) => res.status(404).json({ error: '接口不存在' }));
+  app.use('/assets', express.static(resolve('assets')));
   app.get('/landing', (_req, res) => res.sendFile(resolve('index.html')));
   app.use(express.static(join(distDir, 'web')));
   app.get(['/reader/:id', '/review', '/ask'], (_req, res) => res.sendFile(join(distDir, 'web', 'index.html')));
